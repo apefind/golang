@@ -1,6 +1,7 @@
 package edl
 
 import (
+	"bufio"
 	"regexp"
 )
 
@@ -17,3 +18,10 @@ var CSV_HEADER = []string{"Event No", "Reel", "Track Type", "Edit Type", "Transi
 	"Source In", "Source Out", "Prog In H", "Prog In M", "Prog In S", "Prog In F",
 	"Prog Out H", "Prog Out M", "Prog Out S", "Prog Out F", "Frames In", "Frames Out",
 	"Elapsed Frames", "Seconds", "Frames", "Comments"}
+
+// scanLines also works for mac classic `\r` endings, there are probably better ways to do this ...
+func scanLines(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	innerline, endline := regexp.MustCompile("\r([^\n])"), regexp.MustCompile("\r$")
+	replaced := endline.ReplaceAll(innerline.ReplaceAll(data, []byte("\n$1")), []byte("\n"))
+	return bufio.ScanLines(replaced, atEOF)
+}
