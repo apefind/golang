@@ -12,7 +12,7 @@ func TestTimeout(t *testing.T) {
 	var status CommandStatus
 	var err error
 	if testing.Short() {
-		t.Skip("skipping test in short mode.")
+		t.Skip("skipping test in short mode")
 	}
 	w := bufio.NewWriter(ioutil.Discard)
 	status, err = TimeOut(w, 1*time.Second, "does not exist")
