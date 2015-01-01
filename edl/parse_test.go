@@ -6,5 +6,5 @@ import (
 
 func TestCSVConvert(t *testing.T) {
 	//filename := ""
-	t.Error("Nothing here, move along")
+	t.Error("nothing here, move along")
 }
