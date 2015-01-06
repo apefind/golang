@@ -18,8 +18,8 @@ func TestPrompt(t *testing.T) {
 		{"/home/apefind/u/work/go/src/apefind", 32, 0.75, "/home/a...u/work/go/src/apefind"},
 		{"/home/apefind/u/work/go/src/apefind", 20, 0.75, "/hom.../src/apefind"},
 		{"/home/apefind/u/work/go/src/apefind", 20, 0.25, "/home/apefin...find"},
-		{"/home/nerd/walter/ist/eine/taube/nuss", 15, 0.50, "/home/...e/nuss"},
-		{"/home/nerd/walter/ist/eine/taube/nuss", 10, 0.75, "/.../nuss"},
+		{"/home/xzy/walter/ist/eine/taube/nuss", 15, 0.50, "/home/...e/nuss"},
+		{"/home/xyz/walter/ist/eine/taube/nuss", 10, 0.75, "/.../nuss"},
 	}
 	for _, r := range R {
 		if r.prompt != getPromptPath(r.path, r.length, r.ratio) {

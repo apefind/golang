@@ -10,21 +10,21 @@ import (
 )
 
 func Usage(cmd string, flags *flag.FlagSet) {
-	if cmd == "convert" {
+	if cmd == "extract" {
 		fmt.Fprintf(os.Stderr, "\n%s %s -i <edl file> -o <csv file> -fps [24|30]\n\n",
 			filepath.Base(os.Args[0]), cmd)
-		fmt.Fprintf(os.Stderr, "\tConvert edit decision list into csv format\n\n")
+		fmt.Fprintf(os.Stderr, "\tExtract information from edit decision list into csv\n\n")
 	} else {
 		fmt.Fprintf(os.Stderr, "%s %s\n", filepath.Base(os.Args[0]), cmd)
 	}
 	flags.PrintDefaults()
 }
 
-func ConvertCmd(args []string) int {
+func ExtractCmd(args []string) int {
 	var input, output string
 	var fps int
-	flags := flag.NewFlagSet("convert", flag.ExitOnError)
-	flags.Usage = func() { Usage("convert", flags) }
+	flags := flag.NewFlagSet("extract", flag.ExitOnError)
+	flags.Usage = func() { Usage("extract", flags) }
 	flags.StringVar(&input, "input", "", "edit decision list or standard input")
 	flags.StringVar(&input, "i", "", "")
 	flags.StringVar(&output, "output", "", "csv output file or standard output")
@@ -59,7 +59,7 @@ func ConvertCmd(args []string) int {
 		defer f.Close()
 		w = bufio.NewWriter(f)
 	}
-	if err := ConvertToCSV(r, w, fps); err != nil {
+	if err := ExtractCSV(r, w, fps); err != nil {
 		log.Println(err)
 		return 1
 	}

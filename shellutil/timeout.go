@@ -1,3 +1,5 @@
+//go:generate stringer -type=CommandStatus
+
 package shellutil
 
 import (
@@ -7,7 +9,6 @@ import (
 	"time"
 )
 
-//go:generate stringer -type=CommandStatus
 type CommandStatus int
 
 const (

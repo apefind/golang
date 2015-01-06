@@ -21,7 +21,7 @@ func TestTimeout(t *testing.T) {
 	}
 	status, err = TimeOut(w, 3*time.Second, cmd, "1")
 	if status != Ok || err != nil {
-		t.Error("expected ", OK, " got ", status, err)
+		t.Error("expected ", Ok, " got ", status, err)
 	}
 	status, err = TimeOut(w, 2*time.Second, cmd, "3")
 	if status != ProcessKilled || err != nil {
