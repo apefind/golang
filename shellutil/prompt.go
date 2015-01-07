@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Shorten a path given a maximum length and a ratio
+// getPromptPath shortens a path given a maximum length and a ratio
 func getPromptPath(path string, length int, ratio float64) string {
 	l := len(path)
 	if l > length {
@@ -26,7 +26,7 @@ func getPrompt(path string, length int, ratio float64) string {
 		getPromptPath(strings.Replace(filepath.Clean(path), user.HomeDir, "~", 1), length, ratio) + "> "
 }
 
-// Return a nice shell prompt
+// GetShellPrompt returns a nice shell prompt for the current directory
 func GetShellPrompt(length int, ratio float64) string {
 	path, _ := os.Getwd()
 	return getPrompt(path, length, ratio)

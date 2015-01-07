@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// RegExpEntry extracts information from the EDL, e.g.
+// RegExpEntry extracts information from the edl, e.g.
 //		003  IP_EP213 V     C        00:59:21:23 00:59:21:24 00:59:58:00 00:59:58:01
 //		004     BL    V     C        00:00:00:00 00:00:00:00 01:00:00:00 01:00:00:00
 //		004  IMG_6549 V     D    010 03:01:42:19 03:01:43:16 01:00:00:00 01:00:00:27
@@ -17,13 +17,6 @@ import (
 var RegExpEntry = regexp.MustCompile(`^\s*([0-9]+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S*)\s*` +
 	`([0-9]{2}:[0-9]{2}:[0-9]{2}:[0-9]{2})\s+` + `([0-9]{2}:[0-9]{2}:[0-9]{2}:[0-9]{2})\s+` +
 	`([0-9]{2}:[0-9]{2}:[0-9]{2}:[0-9]{2})\s+` + `([0-9]{2}:[0-9]{2}:[0-9]{2}:[0-9]{2})\s*\*?(.*)$`)
-
-// scanLines also works for mac classic `\r` endings, there are probably better ways to do this ...
-func scanLines(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	innerline, endline := regexp.MustCompile("\r([^\n])"), regexp.MustCompile("\r$")
-	replaced := endline.ReplaceAll(innerline.ReplaceAll(data, []byte("\n$1")), []byte("\n"))
-	return bufio.ScanLines(replaced, atEOF)
-}
 
 type Entry struct {
 	Event, Reel, TrackType, EditType, Transition string
@@ -35,6 +28,7 @@ type Entry struct {
 	Elapsed, Seconds, Frames                     int
 }
 
+// NewEntry runs some frames per second/millisecond conversions based on a line of the edl
 func NewEntry(S []string, fps int) *Entry {
 	e := &Entry{Comment: make([]string, 0, 10)}
 	e.Event, e.Reel, e.TrackType, e.EditType, e.Transition = S[0], S[1], S[2], S[3], S[4]
@@ -67,6 +61,7 @@ func (e *Entry) String() string {
 	return string(buffer[:])
 }
 
+// CSV returns a record for csv writer
 func (e *Entry) CSV() []string {
 	var record = []string{e.Event, e.Reel, e.TrackType, e.EditType, e.Transition,
 		e.SourceIn, e.SourceOut}
@@ -81,15 +76,27 @@ func (e *Entry) CSV() []string {
 	record = append(record, strconv.Itoa(e.Elapsed))
 	record = append(record, strconv.Itoa(e.Seconds))
 	record = append(record, strconv.Itoa(e.Frames))
-	for _, s := range e.Comment {
-		record = append(record, s)
-	}
+	record = append(record, strings.Join(e.Comment, " / "))
 	return record
 }
 
+// Parse processes the edl for further usage
 func Parse(r *bufio.Reader, fps int) []*Entry {
-	var entries []*Entry
+
+	// works for mac classic `\r` endings, there are probably better ways to do this ...
+	scanLines := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		innerline, endline := regexp.MustCompile("\r([^\n])"), regexp.MustCompile("\r$")
+		replaced := endline.ReplaceAll(innerline.ReplaceAll(data, []byte("\n$1")), []byte("\n"))
+		return bufio.ScanLines(replaced, atEOF)
+	}
+
+	// commenting line starts with `*`
+	isComment := func(s string) bool {
+		return len(s) > 0 && s[0] == '*'
+	}
+
 	var entry *Entry
+	var entries []*Entry
 	scanner := bufio.NewScanner(r)
 	scanner.Split(scanLines)
 	for scanner.Scan() {
@@ -98,7 +105,7 @@ func Parse(r *bufio.Reader, fps int) []*Entry {
 			entry = NewEntry(S[1:], fps)
 			entries = append(entries, entry)
 		} else {
-			if entry != nil && len(line) > 0 && line[0] == '*' {
+			if entry != nil && isComment(line) {
 				entry.Comment = append(entry.Comment, strings.TrimSpace(line[1:]))
 			}
 		}

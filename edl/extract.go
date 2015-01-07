@@ -25,7 +25,7 @@ func ExtractCSV(r *bufio.Reader, w *bufio.Writer, fps int) error {
 		w.Flush()
 		seconds, frames = seconds+entry.Seconds, frames+entry.Frames
 	}
-	var record [20]string
+	var record [21]string
 	record[18], record[19] = strconv.Itoa(seconds), strconv.Itoa(frames)
 	if err = writer.Write(record[:]); err != nil {
 		return err
