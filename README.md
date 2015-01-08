@@ -5,7 +5,7 @@ EDL = Edit Decision List
 Usage
 -----
 
-```bash
+```
 edltool extract -i <edl file> -o <csv file> -fps [24|30]
 
 Extract information from edit decision list into csv
