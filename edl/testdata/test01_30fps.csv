@@ -1,4 +1,4 @@
-Event No,Reel,Track Type,Edit Type,Transition,Source In,Source Out,Prog In H,Prog In M,Prog In S,Prog In F,Prog Out H,Prog Out M,Prog Out S,Prog Out F,Frames In,Frames Out,Elapsed Frames,Seconds,Frames,Comments
+Event No,Reel,Track Type,Edit Type,Transition,Source In,Source Out,Prog In H,Prog In M,Prog In S,Prog In F,Prog Out H,Prog Out M,Prog Out S,Prog Out F,Frames In,Frames Out,Elapsed Frames,Seconds,Frames,Notes
 001,BL,V,C,,00:00:00:00,00:00:02:00,00,00,00,00,00,00,02,00,0,60,60,2,0,
 002,SF003,V,C,,00:59:59:28,01:00:00:07,00,00,02,00,00,00,02,07,60,67,7,0,7,FROM CLIP NAME: GOW01.jpg
 003,BL,V,C,,00:00:00:00,00:00:01:15,00,00,02,07,00,00,03,22,67,112,45,1,15,

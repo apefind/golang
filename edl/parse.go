@@ -22,7 +22,7 @@ type Entry struct {
 	Event, Reel, TrackType, EditType, Transition string
 	SourceIn, SourceOut                          string
 	RecordIn, RecordOut                          string
-	Comment                                      []string
+	Notes                                      []string
 	TimeIn, TimeOut                              [4]string
 	FramesIn, FramesOut                          int
 	Elapsed, Seconds, Frames                     int
@@ -30,11 +30,11 @@ type Entry struct {
 
 // NewEntry runs some frames per second/millisecond conversions based on a line of the edl
 func NewEntry(S []string, fps int) *Entry {
-	e := &Entry{Comment: make([]string, 0, 10)}
+	e := &Entry{Notes: make([]string, 0, 10)}
 	e.Event, e.Reel, e.TrackType, e.EditType, e.Transition = S[0], S[1], S[2], S[3], S[4]
 	e.SourceIn, e.SourceOut, e.RecordIn, e.RecordOut = S[5], S[6], S[7], S[8]
 	if S[9] != "" {
-		e.Comment = append(e.Comment, strings.TrimSpace(S[9]))
+		e.Notes = append(e.Notes, strings.TrimSpace(S[9]))
 	}
 	var time [4]int
 	for i, s := range strings.Split(e.RecordIn, ":") {
@@ -76,7 +76,7 @@ func (e *Entry) CSV() []string {
 	record = append(record, strconv.Itoa(e.Elapsed))
 	record = append(record, strconv.Itoa(e.Seconds))
 	record = append(record, strconv.Itoa(e.Frames))
-	record = append(record, strings.Join(e.Comment, " / "))
+	record = append(record, strings.Join(e.Notes, " / "))
 	return record
 }
 
@@ -90,8 +90,8 @@ func Parse(r *bufio.Reader, fps int) []*Entry {
 		return bufio.ScanLines(replaced, atEOF)
 	}
 
-	// commenting line starts with `*`
-	isComment := func(s string) bool {
+	// notes starts with `*`
+	isNote := func(s string) bool {
 		return len(s) > 0 && s[0] == '*'
 	}
 
@@ -105,8 +105,8 @@ func Parse(r *bufio.Reader, fps int) []*Entry {
 			entry = NewEntry(S[1:], fps)
 			entries = append(entries, entry)
 		} else {
-			if entry != nil && isComment(line) {
-				entry.Comment = append(entry.Comment, strings.TrimSpace(line[1:]))
+			if entry != nil && isNote(line) {
+				entry.Notes = append(entry.Notes, strings.TrimSpace(line[1:]))
 			}
 		}
 	}

@@ -18,6 +18,10 @@ func Usage(cmd string, flags *flag.FlagSet) {
 		fmt.Fprintf(os.Stderr, "\n%s %s -d <duration> command [args ...]\n\n",
 			filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\tRun a command under time limitation\n\n")
+	} else if cmd == "batch" {
+		fmt.Fprintf(os.Stderr, "\n%s %s -n <jobs> -d <duration> command [args ...]\n\n",
+			filepath.Base(os.Args[0]), cmd)
+		fmt.Fprintf(os.Stderr, "\tRun a command under time limitation\n\n")
 	} else {
 		fmt.Fprintf(os.Stderr, "\n%s %s\n\n", filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\tRun some shell utility\n\n")
@@ -64,4 +68,9 @@ func TimeoutCmd(args []string) int {
 		log.Println(err)
 	}
 	return int(status)
+}
+
+func BatchCmd(args []string) int {
+	//Batch()
+	return 0
 }

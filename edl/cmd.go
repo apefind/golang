@@ -1,12 +1,15 @@
 package edl
 
 import (
+	"apefind/shellutil"
 	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 func Usage(cmd string, flags *flag.FlagSet) {
@@ -23,6 +26,7 @@ func Usage(cmd string, flags *flag.FlagSet) {
 func ExtractCmd(args []string) int {
 	var input, output string
 	var fps int
+	var auto bool
 	flags := flag.NewFlagSet("extract", flag.ExitOnError)
 	flags.Usage = func() { Usage("extract", flags) }
 	flags.StringVar(&input, "input", "", "edit decision list or standard input")
@@ -31,37 +35,66 @@ func ExtractCmd(args []string) int {
 	flags.StringVar(&output, "o", "", "")
 	flags.IntVar(&fps, "frames-per-second", 30, "frames per second, usually 24 or 30")
 	flags.IntVar(&fps, "fps", 30, "")
+	flags.BoolVar(&auto, "auto", false, "automatically choose input files and output names")
+	flags.BoolVar(&auto, "a", false, "")
 	if err := flags.Parse(args); err != nil {
 		flags.Usage()
 		return 1
 	}
-	var r *bufio.Reader
-	if input == "" {
-		r = bufio.NewReader(os.Stdin)
-	} else {
-		f, err := os.Open(input)
-		if err != nil {
+
+	extractCSV := func(input, output string, fps int) int {
+		var r *bufio.Reader
+		if input == "" {
+			r = bufio.NewReader(os.Stdin)
+		} else {
+			f, err := os.Open(input)
+			if err != nil {
+				log.Println(err)
+				return 1
+			}
+			defer f.Close()
+			r = bufio.NewReader(f)
+		}
+		var w *bufio.Writer
+		if output == "" {
+			w = bufio.NewWriter(os.Stdout)
+		} else {
+			g, err := os.Create(output)
+			if err != nil {
+				log.Println(err)
+				return 1
+			}
+			defer g.Close()
+			w = bufio.NewWriter(g)
+		}
+		if err := ExtractCSV(r, w, fps); err != nil {
 			log.Println(err)
 			return 1
 		}
-		defer f.Close()
-		r = bufio.NewReader(f)
+		return 0
 	}
-	var w *bufio.Writer
-	if output == "" {
-		w = bufio.NewWriter(os.Stdout)
+
+	isEDLFile := func(path string) bool {
+		ext := strings.ToLower(filepath.Ext(path))
+		return ext == ".edl" || ext == ".txt"
+	}
+
+	t0 := time.Now()
+	log.Println("This is edtool,", t0.Format(time.ANSIC))
+	log.Println("    * extracting information from edl files")
+	var F, G []string
+	if auto {
+		F, G = shellutil.GetInputOutput(input, output, isEDLFile, ".csv")
 	} else {
-		f, err := os.Create(output)
-		if err != nil {
-			log.Println(err)
-			return 1
-		}
-		defer f.Close()
-		w = bufio.NewWriter(f)
+		F, G = []string{input}, []string{output}
 	}
-	if err := ExtractCSV(r, w, fps); err != nil {
-		log.Println(err)
-		return 1
+	status := 0
+	for i, f := range F {
+		log.Println("        ", G[i])
+		status |= extractCSV(f, G[i], fps)
 	}
-	return 0
+	t1 := time.Now()
+	log.Printf("    * terminated at %s, total duration %s\n", t1.Format(time.ANSIC), t1.Sub(t0))
+	log.Println("done")
+	return status
 }

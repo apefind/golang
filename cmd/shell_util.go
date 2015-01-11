@@ -16,6 +16,8 @@ func main() {
 		os.Exit(shellutil.PromptCmd(os.Args[2:]))
 	case "timeout":
 		os.Exit(shellutil.TimeoutCmd(os.Args[2:]))
+	case "batch":
+		os.Exit(shellutil.BatchCmd(os.Args[2:]))
 	default:
 		flag.Usage()
 		os.Exit(1)

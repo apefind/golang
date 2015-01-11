@@ -9,7 +9,7 @@ import (
 var CSVHeader = []string{"Event No", "Reel", "Track Type", "Edit Type", "Transition",
 	"Source In", "Source Out", "Prog In H", "Prog In M", "Prog In S", "Prog In F",
 	"Prog Out H", "Prog Out M", "Prog Out S", "Prog Out F", "Frames In", "Frames Out",
-	"Elapsed Frames", "Seconds", "Frames", "Comments"}
+	"Elapsed Frames", "Seconds", "Frames", "Notes"}
 
 func ExtractCSV(r *bufio.Reader, w *bufio.Writer, fps int) error {
 	var err error
