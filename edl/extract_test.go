@@ -1,23 +1,32 @@
 package edl
 
 import (
+	"apefind/shellutil"
 	"bufio"
 	"bytes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
 
 type TestEDL struct {
-	input, output string
-	fps           int
+	input string
+	fps   int
 }
 
 var testEDL []TestEDL = []TestEDL{
-	{"test01.edl", "test01_24fps.csv", 24},
-	{"test01.edl", "test01_30fps.csv", 30},
+	{"test01.edl", 24},
+	{"test01.edl", 30},
+	{"test01.edl", 24},
+	{"test02.txt", 24},
+	{"test03.txt", 24},
+	{"test04.txt", 30},
+	{"test05.edl", 30},
+	{"test06.edl", 30},
+	{"test07.txt", 30},
 }
 
 func TestCSVExtract(t *testing.T) {
@@ -26,14 +35,15 @@ func TestCSVExtract(t *testing.T) {
 		t.Logf("checking %s\n", data.input)
 		f, err := os.Open("testdata" + string(filepath.Separator) + data.input)
 		if err != nil {
-			t.Error("cannot open input", data.input, ":", err)
+			t.Log(err)
 			continue
 		}
 		defer f.Close()
 		ExtractCSV(bufio.NewReader(f), bufio.NewWriter(&buffer), data.fps)
-		output, err := ioutil.ReadFile("testdata" + string(filepath.Separator) + data.output)
+		output, err := ioutil.ReadFile("testdata" + string(filepath.Separator) +
+			shellutil.GetFileBasename(data.input) + "_" + strconv.Itoa(data.fps) + "fps.csv")
 		if err != nil {
-			t.Error("cannot open output", data.output, ":", err)
+			t.Log(err)
 			continue
 		}
 		S, T := strings.Split(string(buffer.Bytes()), "\n"), strings.Split(string(output), "\n")

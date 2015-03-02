@@ -14,7 +14,7 @@ import (
 
 func Usage(cmd string, flags *flag.FlagSet) {
 	if cmd == "extract" {
-		fmt.Fprintf(os.Stderr, "\n%s %s -i <edl file> -o <csv file> -fps [24|30]\n\n",
+		fmt.Fprintf(os.Stderr, "\n%s %s -i <edl file> -o <csv file> -fps [24|30] [-auto]\n\n",
 			filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\tExtract information from edit decision list into csv\n\n")
 	} else {
@@ -24,23 +24,6 @@ func Usage(cmd string, flags *flag.FlagSet) {
 }
 
 func ExtractCmd(args []string) int {
-	var input, output string
-	var fps int
-	var auto bool
-	flags := flag.NewFlagSet("extract", flag.ExitOnError)
-	flags.Usage = func() { Usage("extract", flags) }
-	flags.StringVar(&input, "input", "", "edit decision list or standard input")
-	flags.StringVar(&input, "i", "", "")
-	flags.StringVar(&output, "output", "", "csv output file or standard output")
-	flags.StringVar(&output, "o", "", "")
-	flags.IntVar(&fps, "frames-per-second", 30, "frames per second, usually 24 or 30")
-	flags.IntVar(&fps, "fps", 30, "")
-	flags.BoolVar(&auto, "auto", false, "automatically choose input files and output names")
-	flags.BoolVar(&auto, "a", false, "")
-	if err := flags.Parse(args); err != nil {
-		flags.Usage()
-		return 1
-	}
 
 	extractCSV := func(input, output string, fps int) int {
 		var r *bufio.Reader
@@ -79,22 +62,39 @@ func ExtractCmd(args []string) int {
 		return ext == ".edl" || ext == ".txt"
 	}
 
-	t0 := time.Now()
-	log.Println("This is edtool,", t0.Format(time.ANSIC))
-	log.Println("    * extracting information from edl files")
+	var input, output string
+	var fps int
+	var auto bool
+	flags := flag.NewFlagSet("extract", flag.ExitOnError)
+	flags.Usage = func() { Usage("extract", flags) }
+	flags.StringVar(&input, "input", "", "edit decision list or standard input")
+	flags.StringVar(&input, "i", "", "")
+	flags.StringVar(&output, "output", "", "csv output file or standard output")
+	flags.StringVar(&output, "o", "", "")
+	flags.IntVar(&fps, "frames-per-second", 30, "frames per second, usually 24 or 30")
+	flags.IntVar(&fps, "fps", 30, "")
+	flags.BoolVar(&auto, "auto", false, "automatically choose input files and output names")
+	flags.BoolVar(&auto, "a", false, "")
+	if err := flags.Parse(args); err != nil {
+		flags.Usage()
+		return 1
+	}
 	var F, G []string
 	if auto {
+		t0 := time.Now()
+		log.Println("This is edtool,", t0.Format(time.ANSIC))
+		log.Println("    * extracting information from edl files")
 		F, G = shellutil.GetInputOutput(input, output, isEDLFile, ".csv")
+		status := 0
+		for i, f := range F {
+			log.Println("        ", G[i])
+			status |= extractCSV(f, G[i], fps)
+		}
+		t1 := time.Now()
+		log.Printf("    * terminated at %s, total duration %s\n", t1.Format(time.ANSIC), t1.Sub(t0))
+		log.Println("done")
+		return status
 	} else {
-		F, G = []string{input}, []string{output}
+		return extractCSV(input, output, fps)
 	}
-	status := 0
-	for i, f := range F {
-		log.Println("        ", G[i])
-		status |= extractCSV(f, G[i], fps)
-	}
-	t1 := time.Now()
-	log.Printf("    * terminated at %s, total duration %s\n", t1.Format(time.ANSIC), t1.Sub(t0))
-	log.Println("done")
-	return status
 }

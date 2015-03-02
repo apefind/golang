@@ -22,7 +22,7 @@ type Entry struct {
 	Event, Reel, TrackType, EditType, Transition string
 	SourceIn, SourceOut                          string
 	RecordIn, RecordOut                          string
-	Notes                                      []string
+	Notes                                        []string
 	TimeIn, TimeOut                              [4]string
 	FramesIn, FramesOut                          int
 	Elapsed, Seconds, Frames                     int
@@ -90,7 +90,7 @@ func Parse(r *bufio.Reader, fps int) []*Entry {
 		return bufio.ScanLines(replaced, atEOF)
 	}
 
-	// notes starts with `*`
+	// notes start with a `*`
 	isNote := func(s string) bool {
 		return len(s) > 0 && s[0] == '*'
 	}
