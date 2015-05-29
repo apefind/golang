@@ -30,6 +30,7 @@ Usage
 ::
 
 	episode_guide [rename|info]
+
   		-d=false:
 		-dry_run=false: Just print, do not actually rename
 		-m="tvrage":
