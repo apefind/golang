@@ -1,7 +1,7 @@
 
 EDL
 ===
-EDL = Edit Decision List
+EDL = Edit Decision List, extract information from edit decision list into csv.
 
 Usage
 -----
@@ -16,3 +16,18 @@ Usage
     -o, -output="": csv output file or standard output
 
 
+Episode Guide
+=============
+Rename series episodes according to tvrage.
+
+Usage
+-----
+::
+
+	episode_guide [rename|info]
+  		-d=false:
+		-dry_run=false: Just print, do not actually rename
+		-m="tvrage":
+		-method="tvrage": Only tvrage for now
+		-n=false:
+		-no_title=false: Ignore the title, just use S01E01, S01E02, ...
