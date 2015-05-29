@@ -7,13 +7,18 @@ Usage
 -----
 ::
 
-    edltool extract -i <edl file> -o <csv file> -fps [24|30]
+	edltool extract -i <edl file> -o <csv file> -fps [24|30] [-auto]
 
-        Extract information from edit decision list into csv
+		Extract information from edit decision list into csv
 
-    -fps, -frames-per-second=30: frames per second, usually 24 or 30
-    -i, -input="": edit decision list or standard input
-    -o, -output="": csv output file or standard output
+		-a=false:
+		-auto=false: automatically choose input files and output names
+		-fps=30:
+		-frames-per-second=30: frames per second, usually 24 or 30
+		-i="":
+		-input="": edit decision list or standard input
+		-o="":
+		-output="": csv output file or standard output
 
 
 Episode Guide
