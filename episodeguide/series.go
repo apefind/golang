@@ -1,0 +1,51 @@
+package episodeguide
+
+import (
+	"fmt"
+	"sort"
+)
+
+type Series struct {
+	Title, Description string
+	Seasons            map[int]*Season
+}
+
+func NewSeries(title, description string) *Series {
+	return &Series{
+		Title:       title,
+		Description: description,
+		Seasons:     make(map[int]*Season),
+	}
+}
+
+func (series *Series) String() string {
+	return fmt.Sprintf("%s", series.Title)
+}
+
+func (series *Series) AddSeason(id int, title, description string) {
+	series.Seasons[id] = NewSeason(series, id, title, description)
+}
+
+func (series *Series) SortedSeasons() []*Season {
+	J := make([]int, 0, len(series.Seasons))
+	for j := range series.Seasons {
+		J = append(J, j)
+	}
+	sort.Ints(J)
+	seasons := make([]*Season, len(J))
+	for i, j := range J {
+		seasons[i] = series.Seasons[j]
+	}
+	return seasons
+}
+
+// Return a map to directly access the episodes via episode code, e.g. "S02E03"
+func (series *Series) EpisodeMap() map[string]*Episode {
+	episodes := make(map[string]*Episode)
+	for _, season := range series.SortedSeasons() {
+		for _, episode := range season.SortedEpisodes() {
+			episodes[episode.Code()] = episode
+		}
+	}
+	return episodes
+}
