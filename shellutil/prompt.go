@@ -18,7 +18,6 @@ func getPromptPath(path string, length int, ratio float64) string {
 	return path
 }
 
-// Return a nice shell prompt
 func getPrompt(path string, length int, ratio float64) string {
 	hostname, _ := os.Hostname()
 	user, _ := user.Current()

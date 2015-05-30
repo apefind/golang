@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,10 +19,10 @@ func Usage(cmd string, flags *flag.FlagSet) {
 		fmt.Fprintf(os.Stderr, "\n%s %s -d <duration> command [args ...]\n\n",
 			filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\tRun a command under time limitation\n\n")
-	} else if cmd == "batch" {
-		fmt.Fprintf(os.Stderr, "\n%s %s -n <jobs> -d <duration> command [args ...]\n\n",
+	} else if cmd == "timeit" {
+		fmt.Fprintf(os.Stderr, "\n%s %s -n <repetitions> command [args ...]\n\n",
 			filepath.Base(os.Args[0]), cmd)
-		fmt.Fprintf(os.Stderr, "\tRun a command under time limitation\n\n")
+		fmt.Fprintf(os.Stderr, "\tMeasure execution time of a command\n\n")
 	} else {
 		fmt.Fprintf(os.Stderr, "\n%s %s\n\n", filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\tRun some shell utility\n\n")
@@ -43,7 +44,7 @@ func PromptCmd(args []string) int {
 	return 0
 }
 
-func TimeoutCmd(args []string) int {
+func TimeOutCmd(args []string) int {
 	var duration time.Duration
 	flags := flag.NewFlagSet("timeout", flag.ExitOnError)
 	flags.DurationVar(&duration, "duration", 0*time.Second, "kill the command after given duration")
@@ -70,7 +71,38 @@ func TimeoutCmd(args []string) int {
 	return int(status)
 }
 
-func BatchCmd(args []string) int {
-	//Batch()
+func TimeItCmd(args []string) int {
+	var n int
+	var quiet bool
+	flags := flag.NewFlagSet("timeit", flag.ExitOnError)
+	flags.IntVar(&n, "n", 1, "number of repetitions")
+	flags.BoolVar(&quiet, "q", false, "quiet run")
+	flags.Usage = func() { Usage("timeit", flags) }
+	flags.Parse(args)
+	cmd := flags.Arg(0)
+	if cmd == "" {
+		flags.Usage()
+		fmt.Fprintf(os.Stderr, "\nno command specified\n\n")
+		return int(CommandNotFound)
+	}
+	var duration time.Duration
+	var err error
+	var w *bufio.Writer
+	if quiet {
+		w = bufio.NewWriter(ioutil.Discard)
+	} else {
+		w = bufio.NewWriter(os.Stdout)
+	}
+	if flags.NArg() == 0 {
+		duration, err = TimeIt(w, n, cmd)
+	} else {
+		duration, err = TimeIt(w, n, cmd, flags.Args()[1:]...)
+	}
+	if err != nil {
+		log.Println(err)
+		return -1
+	}
+	log.Printf("total duration:\t\t\t%s\n", duration)
+	log.Printf("average duration (%dx):\t\t%s\n", n, time.Duration(int64(duration.Nanoseconds()/int64(n))))
 	return 0
 }
