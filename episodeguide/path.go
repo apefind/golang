@@ -55,19 +55,24 @@ func GetSeriesTitleFromPath(path string) (string, int) {
 
 // Return "S01E01" from something like "4sj-dw-s05e01-dl-bluray-x264.mkv"
 func GetEpisodeCodeFromFilename(filename string) string {
+	var S []string
 	_, basename := filepath.Split(filename)
-	S := RE_EPISODE1.FindAllString(basename, -1)
+	S = RE_EPISODE1.FindAllString(basename, -1)
 	if len(S) > 0 {
 		return strings.ToUpper(strings.Replace(S[0], ".", "", 1))
 	}
-	T := RE_EPISODE2.FindAllString(basename, -1)
-	if len(T) > 0 {
-		s := strings.Replace(T[0], "x", "E", 1)
+	S = RE_EPISODE2.FindAllString(basename, -1)
+	if len(S) > 0 {
+		s := strings.Replace(S[0], "x", "E", 1)
 		if len(s) == 4 {
 			return "S0" + s
 		} else {
 			return "S" + s
 		}
+	}
+	S = RE_EPISODE3.FindAllString(basename, -1)
+	if len(S) > 0 {
+		return "S0" + S[0][1:2] + "E" + S[0][2:4]
 	}
 	return ""
 }

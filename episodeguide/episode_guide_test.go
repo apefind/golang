@@ -17,6 +17,10 @@ func TestPath(t *testing.T) {
 	episodes["4sj-dw-05x02-dl-bluray-x264.mkv"] = "S05E02"
 	episodes["4sj-dw-f02-dl-bluray-x264.mkv"] = ""
 	episodes["blabla S01.E02 blabla"] = "S01E02"
+	episodes["tvs-ded-dl-ithd-x264-304.mkv"] = "S03E04"
+	episodes["tvs-ded-dl-ithd-x264.304.mkv"] = "S03E04"
+	episodes["tvs-ded-dl-ithd-x264+304.mkv"] = ""
+	episodes["tvs-ded-dl-ithd-x264+304+xyz.mkv"] = ""
 	for path := range episodes {
 		episode := GetEpisodeCodeFromFilename(path)
 		if episode != episodes[path] {
