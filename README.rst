@@ -37,3 +37,36 @@ Usage
 		-method="tvrage": Only tvrage for now
 		-n=false:
 		-no_title=false: Ignore the title, just use S01E01, S01E02, ...
+		
+		
+Shell Util
+==========
+
+Usage
+-----
+::
+
+	shell_util [prompt|timeout|timeit]
+	
+	shell_util prompt -l <length> -r <ratio>
+
+		print a length limited prompt
+
+	  -l=32:
+	  -length=32: maximum length of the prompt
+	  -r=0.75:
+	  -ratio=0.75: ratio between head/tail of the path
+	
+	shell_util timeout -d <duration> command [args ...]
+
+		run a command under time limitation
+
+	  -d=0:
+	  -duration=0: kill the command after given duration
+	  
+	shell_util timeit -n <repetitions> command [args ...]
+
+	  	measure execution time of a command
+
+	    -n=1: number of repetitions
+	    -q=false: quiet run
