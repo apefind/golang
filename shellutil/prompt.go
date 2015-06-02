@@ -21,8 +21,12 @@ func getPromptPath(path string, length int, ratio float64) string {
 func getPrompt(path string, length int, ratio float64) string {
 	hostname, _ := os.Hostname()
 	user, _ := user.Current()
-	return user.Username + "@" + strings.Split(hostname, ".")[0] + ":" +
-		getPromptPath(strings.Replace(filepath.Clean(path), user.HomeDir, "~", 1), length, ratio) + "> "
+	path = filepath.Clean(path)
+	if strings.HasPrefix(path, user.HomeDir) {
+		path = strings.Replace(filepath.Clean(path), user.HomeDir, "~", 1)
+	}
+	return user.Username + "@" + strings.Split(hostname, ".")[0] + ":" + 
+		getPromptPath(path, length, ratio) + "> "
 }
 
 // GetShellPrompt returns a nice shell prompt for the current directory
