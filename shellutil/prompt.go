@@ -25,7 +25,7 @@ func getPrompt(path string, length int, ratio float64) string {
 	if strings.HasPrefix(path, user.HomeDir) {
 		path = strings.Replace(filepath.Clean(path), user.HomeDir, "~", 1)
 	}
-	return user.Username + "@" + strings.Split(hostname, ".")[0] + ":" + 
+	return user.Username + "@" + strings.Split(hostname, ".")[0] + ":" +
 		getPromptPath(path, length, ratio) + "> "
 }
 

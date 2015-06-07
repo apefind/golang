@@ -3,9 +3,8 @@ package shellutil
 import (
 	"io/ioutil"
 	"os"
-	"strings"
-	//"fmt"
 	"path/filepath"
+	"strings"
 )
 
 const PathSeparator = string(filepath.Separator)
@@ -74,7 +73,7 @@ func GetInputOutput(input, output string, isValid ValidFilenameFunc, ext string)
 		F = []string{input}
 	}
 	for _, f := range F {
-		G = append(G, GetOutputFilename(f, output, ".csv"))
+		G = append(G, GetOutputFilename(f, output, ext))
 	}
 	return F, G
 }

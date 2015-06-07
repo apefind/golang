@@ -14,18 +14,18 @@ import (
 func Usage(cmd string, flags *flag.FlagSet) {
 	if cmd == "prompt" {
 		fmt.Fprintf(os.Stderr, "\n%s %s -l <length> -r <ratio>\n\n", filepath.Base(os.Args[0]), cmd)
-		fmt.Fprintf(os.Stderr, "\tPrint a length limited prompt\n\n")
+		fmt.Fprintf(os.Stderr, "\tprint a length limited prompt\n\n")
 	} else if cmd == "timeout" {
 		fmt.Fprintf(os.Stderr, "\n%s %s -d <duration> command [args ...]\n\n",
 			filepath.Base(os.Args[0]), cmd)
-		fmt.Fprintf(os.Stderr, "\tRun a command under time limitation\n\n")
+		fmt.Fprintf(os.Stderr, "\trun a command under time limitation\n\n")
 	} else if cmd == "timeit" {
 		fmt.Fprintf(os.Stderr, "\n%s %s -n <repetitions> command [args ...]\n\n",
 			filepath.Base(os.Args[0]), cmd)
-		fmt.Fprintf(os.Stderr, "\tMeasure execution time of a command\n\n")
+		fmt.Fprintf(os.Stderr, "\tmeasure execution time of a command\n\n")
 	} else {
 		fmt.Fprintf(os.Stderr, "\n%s %s\n\n", filepath.Base(os.Args[0]), cmd)
-		fmt.Fprintf(os.Stderr, "\tRun some shell utility\n\n")
+		fmt.Fprintf(os.Stderr, "\trun some shell utility\n\n")
 	}
 	flags.PrintDefaults()
 }

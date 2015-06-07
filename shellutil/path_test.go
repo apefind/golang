@@ -28,6 +28,7 @@ func TestInputOutput(t *testing.T) {
 		{"/home/apefind/test.txt", "/tmp/_not_a_dir_", ".csv", "/tmp/_not_a_dir_.csv"},
 		{"/home/apefind/test.txt", "/tmp/test.xls", "", "/tmp/test.xls"},
 		{"/home/apefind/test", "", ".csv", "/home/apefind/test.csv"},
+		{"/home/apefind/test", "", ".mp3", "/home/apefind/test.mp3"},
 	}
 	for _, r := range R {
 		if GetOutputFilename(r[0], r[1], r[2]) != r[3] {
