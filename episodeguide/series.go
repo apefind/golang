@@ -3,6 +3,7 @@ package episodeguide
 import (
 	"fmt"
 	"sort"
+	"time"
 )
 
 type Series struct {
@@ -48,4 +49,28 @@ func (series *Series) EpisodeMap() map[string]*Episode {
 		}
 	}
 	return episodes
+}
+
+func GetRenamedSeries(title string, method string) (*Series, error) {
+	var series *Series
+	var err error
+	done := make(chan error, 1)
+	if method == "tvrage" {
+		go func() {
+			series, err = GetTVRageSeries(title)
+			done <- err
+		}()
+	}
+	var timeout time.Duration
+	timeout, err = time.ParseDuration("20s")
+	if err != nil {
+		return series, err
+	}
+	select {
+	case <-time.After(timeout):
+		close(done)
+		return series, fmt.Errorf("timeout after %s", timeout)
+	case err := <-done:
+		return series, err
+	}
 }

@@ -1,10 +1,12 @@
 package episodeguide
 
 import (
+	"apefind/shellutil"
 	"fmt"
 	"mime"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -53,15 +55,18 @@ func GetSeriesTitleFromPath(path string) (string, int) {
 	return basename, 0
 }
 
-// Return "S01E01" from something like "4sj-dw-s05e01-dl-bluray-x264.mkv"
+// GetEpisodeCodeFromFilename returns "S05E01" from something like "4sj-dw-s05e01-dl-bluray-x264.mkv"
 func GetEpisodeCodeFromFilename(filename string) string {
 	var S []string
+	var reEpisode *regexp.Regexp
 	_, basename := filepath.Split(filename)
-	S = RE_EPISODE1.FindAllString(basename, -1)
+	reEpisode = regexp.MustCompile(`[sS][0-2][0-9].?[eE][0-3][0-9]`)
+	S = reEpisode.FindAllString(basename, -1)
 	if len(S) > 0 {
 		return strings.ToUpper(strings.Replace(S[0], ".", "", 1))
 	}
-	S = RE_EPISODE2.FindAllString(basename, -1)
+	reEpisode = regexp.MustCompile(`[0-2]?[0-9]x[0-3][0-9]`)
+	S = reEpisode.FindAllString(basename, -1)
 	if len(S) > 0 {
 		s := strings.Replace(S[0], "x", "E", 1)
 		if len(s) == 4 {
@@ -70,22 +75,26 @@ func GetEpisodeCodeFromFilename(filename string) string {
 			return "S" + s
 		}
 	}
-	S = RE_EPISODE3.FindAllString(basename, -1)
+	reEpisode = regexp.MustCompile(`[.-][0-9][0-3][0-9][.-]`)
+	S = reEpisode.FindAllString(basename, -1)
 	if len(S) > 0 {
 		return "S0" + S[0][1:2] + "E" + S[0][2:4]
 	}
 	return ""
 }
 
-// Return a map with the renamed episodes
+func GetValidFilename(filename string) string {
+	return strings.Replace(filename, "/", "-", -1)
+}
+
+// GetRenamedEpisodes returns a map with the renamed episodes
 func GetRenamedEpisodes(title string, filenames []string, method string, noTitle bool) map[string]string {
 	var series *Series
 	var err error
 	renamedEpisodes := make(map[string]string)
-	if method == "tvrage" {
-		series, err = GetTVRageSeries(title)
-	}
+	series, err = GetRenamedSeries(title, method)
 	if err != nil {
+		fmt.Println(err)
 		return renamedEpisodes
 	}
 	episodes := series.EpisodeMap()
@@ -96,7 +105,7 @@ func GetRenamedEpisodes(title string, filenames []string, method string, noTitle
 				renamedEpisodes[filename] = code + filepath.Ext(filename)
 			} else {
 				if episode, ok := episodes[code]; ok {
-					renamedEpisodes[filename] = code + " " + episode.Title + filepath.Ext(filename)
+					renamedEpisodes[filename] = GetValidFilename(code + " " + episode.Title + filepath.Ext(filename))
 				} else {
 					renamedEpisodes[filename] = ""
 				}
@@ -118,7 +127,7 @@ func RenameEpisodes(path string, method string, dryRun bool, noTitle bool) {
 	for _, filename := range filenames {
 		episode := episodes[filename]
 		dirname, basename := filepath.Split(filename)
-		if basename == episode {
+		if shellutil.EqualFilenames(basename, episode) {
 			fmt.Println(basename, "-> ok")
 		} else if episode == "" {
 			fmt.Println(basename, "-> title not found")

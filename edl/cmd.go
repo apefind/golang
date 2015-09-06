@@ -2,13 +2,13 @@ package edl
 
 import (
 	"apefind/shellutil"
-	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,31 +26,13 @@ func Usage(cmd string, flags *flag.FlagSet) {
 func ExtractCmd(args []string) int {
 
 	extractCSV := func(input, output string, fps int) int {
-		var r *bufio.Reader
-		if input == "" {
-			r = bufio.NewReader(os.Stdin)
-		} else {
-			f, err := os.Open(input)
-			if err != nil {
-				log.Println(err)
-				return 1
-			}
-			defer f.Close()
-			r = bufio.NewReader(f)
+		inout := shellutil.NewInOut(input, output)
+		if err := inout.Open(); err != nil {
+			log.Println(err)
+			return 1
 		}
-		var w *bufio.Writer
-		if output == "" {
-			w = bufio.NewWriter(os.Stdout)
-		} else {
-			g, err := os.Create(output)
-			if err != nil {
-				log.Println(err)
-				return 1
-			}
-			defer g.Close()
-			w = bufio.NewWriter(g)
-		}
-		if err := ExtractCSV(r, w, fps); err != nil {
+		defer inout.Close()
+		if err := ExtractCSV(inout.Reader, inout.Writer, fps); err != nil {
 			log.Println(err)
 			return 1
 		}
@@ -81,15 +63,21 @@ func ExtractCmd(args []string) int {
 	}
 	var F, G []string
 	if auto {
+		var wg sync.WaitGroup
 		t0 := time.Now()
 		log.Println("This is edtool,", t0.Format(time.ANSIC))
 		log.Println("    * extracting information from edl files")
 		F, G = shellutil.GetInputOutput(input, output, isEDLFile, ".csv")
 		status := 0
 		for i, f := range F {
-			log.Println("        ", G[i])
-			status |= extractCSV(f, G[i], fps)
+			wg.Add(1)
+			go func(f, g string) {
+				defer wg.Done()
+				log.Println("        ", g)
+				status |= extractCSV(f, g, fps)
+			}(f, G[i])
 		}
+		wg.Wait()
 		t1 := time.Now()
 		log.Printf("    * terminated at %s, total duration %s\n", t1.Format(time.ANSIC), t1.Sub(t0))
 		log.Println("done")

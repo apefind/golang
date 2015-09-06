@@ -1,6 +1,8 @@
 package shellutil
 
 import (
+	"bytes"
+	"golang.org/x/text/unicode/norm"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -19,6 +21,11 @@ func IsFile(path string) bool {
 func IsDirectory(path string) bool {
 	stat, err := os.Stat(path)
 	return err == nil && stat.IsDir()
+}
+
+// EqualFilenames uses unicode normmalization
+func EqualFilenames(filename0, filename1 string) bool {
+	return bytes.Equal(norm.NFC.Bytes([]byte(filename0)), norm.NFC.Bytes([]byte(filename1)))
 }
 
 func GetFileBasename(path string) string {
