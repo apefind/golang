@@ -90,25 +90,30 @@ func GetValidFilename(filename string) string {
 // GetRenamedEpisodes returns a map with the renamed episodes
 func GetRenamedEpisodes(title string, filenames []string, method string, noTitle bool) map[string]string {
 	var series *Series
+	var episodes map[string]*Episode
 	var err error
 	renamedEpisodes := make(map[string]string)
-	series, err = GetRenamedSeries(title, method)
+	if noTitle {
+		for _, filename := range filenames {
+			if isVideoFile(filename) {
+				renamedEpisodes[filename] = GetEpisodeCodeFromFilename(filename) + filepath.Ext(filename)
+			}
+		}
+		return renamedEpisodes
+	}
+	series, err = GetSeries(title, method)
 	if err != nil {
 		fmt.Println(err)
 		return renamedEpisodes
 	}
-	episodes := series.EpisodeMap()
+	episodes = series.EpisodeMap()
 	for _, filename := range filenames {
 		if isVideoFile(filename) {
 			code := GetEpisodeCodeFromFilename(filename)
-			if noTitle {
-				renamedEpisodes[filename] = code + filepath.Ext(filename)
+			if episode, ok := episodes[code]; ok {
+				renamedEpisodes[filename] = GetValidFilename(code + " " + episode.Title + filepath.Ext(filename))
 			} else {
-				if episode, ok := episodes[code]; ok {
-					renamedEpisodes[filename] = GetValidFilename(code + " " + episode.Title + filepath.Ext(filename))
-				} else {
-					renamedEpisodes[filename] = ""
-				}
+				renamedEpisodes[filename] = ""
 			}
 		}
 	}
