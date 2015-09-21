@@ -3,6 +3,7 @@ package episodeguide
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -51,22 +52,21 @@ func (series *Series) EpisodeMap() map[string]*Episode {
 	return episodes
 }
 
-func GetSeries(title string, method string) (*Series, error) {
+type SeriesReader interface {
+	GetSeries() (*Series, error)
+}
+
+func getSeries(title string, readers []SeriesReader, timeout time.Duration) (*Series, error) {
 	var series *Series
 	var err error
 	done := make(chan error, 1)
-	go func() {
-		series, err = GetTVRageSeries(title)
-		done <- err
-	}()
-	go func() {
-		series, err = GetTVMazeSeries(title)
-		done <- err
-	}()
-	var timeout time.Duration
-	timeout, err = time.ParseDuration("5s")
-	if err != nil {
-		return series, err
+	for _, r := range readers {
+		go func(r SeriesReader) {
+			series, err = r.GetSeries()
+			if err == nil {
+				done <- err
+			}
+		}(r)
 	}
 	select {
 	case <-time.After(timeout):
@@ -76,4 +76,19 @@ func GetSeries(title string, method string) (*Series, error) {
 		close(done)
 		return series, err
 	}
+}
+
+func GetSeries(title string, method string) (*Series, error) {
+	readers := []SeriesReader{}
+	if strings.Contains(method, "tvmaze") {
+		readers = append(readers, NewTVMazeSeries(title))
+	}
+	if strings.Contains(method, "tvrage") {
+		readers = append(readers, NewTVRageSeries(title))
+	}
+	timeout, err := time.ParseDuration("5.0s")
+	if err != nil {
+		return nil, err
+	}
+	return getSeries(title, readers, timeout)
 }

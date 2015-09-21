@@ -28,16 +28,16 @@ func main() {
 		flags.BoolVar(&dryRun, "d", false, "")
 		flags.BoolVar(&noTitle, "no_title", false, "ignore the title, just use S01E01, S01E02, ...")
 		flags.BoolVar(&noTitle, "n", false, "")
-		flags.StringVar(&method, "method", "tvrage", "only tvrage for now")
-		flags.StringVar(&method, "m", "tvrage", "")
+		flags.StringVar(&method, "method", "tvmaze|tvrage", "tvmaze or/and tvrage")
+		flags.StringVar(&method, "m", "tvmaze|tvrage", "")
 		flags.Usage = func() { usage(flags) }
 		flags.Parse(os.Args[2:])
 		episodeguide.RenameEpisodes(filepath.Clean(path), method, dryRun, noTitle)
 	case "info":
 		var method string
 		flags := flag.NewFlagSet("info", flag.ExitOnError)
-		flags.StringVar(&method, "method", "tvrage", "only tvrage for now")
-		flags.StringVar(&method, "m", "tvrage", "")
+		flags.StringVar(&method, "method", "tvmaze|tvrage", "tvmaze or/and tvrage")
+		flags.StringVar(&method, "m", "tvmaze|tvrage", "")
 		flags.Usage = func() { usage(flags) }
 		flags.Parse(os.Args[2:])
 		episodeguide.ListEpisodes(filepath.Clean(path), method)

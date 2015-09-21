@@ -11,44 +11,44 @@ import (
 	"strings"
 )
 
-const TVRageSearchURL string = `http://services.tvrage.com/feeds/search.php?show=%s`
-const TVRageEpisodeListURL string = `http://services.tvrage.com/feeds/episode_list.php?sid=%s`
+const urlTVRageSearch string = `http://services.tvrage.com/feeds/search.php?show=%s`
+const urlTVRageEpisodeList string = `http://services.tvrage.com/feeds/episode_list.php?sid=%s`
 
-type TVRageShow struct {
+type xmlTVRageShow struct {
 	_    xml.Name `xml:"show"`
 	Id   string   `xml:"showid"`
 	Name string   `xml:"name"`
 }
 
-type TVRageQueryResult struct {
-	_     xml.Name     `xml:"Results"`
-	Shows []TVRageShow `xml:"show"`
+type xmlTVRageQueryResult struct {
+	_     xml.Name        `xml:"Results"`
+	Shows []xmlTVRageShow `xml:"show"`
 }
 
-type TVRageEpisode struct {
+type xmlTVRageEpisode struct {
 	_     xml.Name `xml:"episode"`
 	Id    string   `xml:"seasonnum"`
 	Title string   `xml:"title"`
 }
 
-type TVRageSeason struct {
-	_        xml.Name        `xml:"Season"`
-	Id       string          `xml:"no,attr"`
-	Episodes []TVRageEpisode `xml:"episode"`
+type xmlTVRageSeason struct {
+	_        xml.Name           `xml:"Season"`
+	Id       string             `xml:"no,attr"`
+	Episodes []xmlTVRageEpisode `xml:"episode"`
 }
 
-type TVRageSeries struct {
-	_       xml.Name       `xml:"Show"`
-	Name    string         `xml:"name"`
-	Seasons []TVRageSeason `xml:"Episodelist>Season"`
+type xmlTVRageSeries struct {
+	_       xml.Name          `xml:"Show"`
+	Name    string            `xml:"name"`
+	Seasons []xmlTVRageSeason `xml:"Episodelist>Season"`
 }
 
-func getTVRageSeriesId(r io.Reader, title string) (string, error) {
+func GetTVRageSeriesId(r io.Reader, title string) (string, error) {
 	content, err := ioutil.ReadAll(r)
 	if err != nil {
 		return "", err
 	}
-	var result TVRageQueryResult
+	var result xmlTVRageQueryResult
 	if err := xml.Unmarshal(content, &result); err != nil {
 		return "", err
 	}
@@ -60,12 +60,12 @@ func getTVRageSeriesId(r io.Reader, title string) (string, error) {
 	return "", fmt.Errorf("show id for <%s> not found", title)
 }
 
-func getTVRageSeries(r io.Reader) (*Series, error) {
+func GetTVRageSeries(r io.Reader) (*Series, error) {
 	content, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
-	var seriesTVRage TVRageSeries
+	var seriesTVRage xmlTVRageSeries
 	if err := xml.Unmarshal(content, &seriesTVRage); err != nil {
 		return nil, err
 	}
@@ -89,24 +89,55 @@ func getTVRageSeries(r io.Reader) (*Series, error) {
 	return series, nil
 }
 
-func GetTVRageSeriesId(title string) (string, error) {
-	response, err := http.Get(fmt.Sprintf(TVRageSearchURL, url.QueryEscape(title)))
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	return getTVRageSeriesId(response.Body, title)
+type TVRageSeries struct {
+	Title  string
+	Id     string
+	Series *Series
 }
 
-func GetTVRageSeries(title string) (*Series, error) {
-	id, err := GetTVRageSeriesId(title)
-	if err != nil {
-		return nil, err
+func NewTVRageSeries(title string) *TVRageSeries {
+	return &TVRageSeries{
+		Title:  title,
+		Id:     "",
+		Series: nil,
 	}
-	response, err := http.Get(fmt.Sprintf(TVRageEpisodeListURL, url.QueryEscape(id)))
+}
+
+func (s *TVRageSeries) String() string {
+	return "tvrage series: " + s.Title
+}
+
+func (s *TVRageSeries) GetId() error {
+	var response *http.Response
+	var err error
+	response, err = http.Get(fmt.Sprintf(urlTVRageSearch, url.QueryEscape(s.Title)))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer response.Body.Close()
-	return getTVRageSeries(response.Body)
+	s.Id, err = GetTVRageSeriesId(response.Body, s.Title)
+	return err
+}
+
+func (s *TVRageSeries) Get() error {
+	var response *http.Response
+	var err error
+	err = s.GetId()
+	if err != nil {
+		return err
+	}
+	response, err = http.Get(fmt.Sprintf(urlTVRageEpisodeList, url.QueryEscape(s.Id)))
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	s.Series, err = GetTVRageSeries(response.Body)
+	return err
+}
+
+func (s *TVRageSeries) GetSeries() (*Series, error) {
+	if err := s.Get(); err != nil {
+		return nil, err
+	}
+	return s.Series, nil
 }

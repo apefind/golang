@@ -154,9 +154,7 @@ func ListEpisodes(path string, method string) {
 	title, seasonId := GetSeriesTitleFromPath(path)
 	var series *Series
 	var err error
-	if method == "tvrage" {
-		series, err = GetTVRageSeries(title)
-	}
+	series, err = GetSeries(title, method)
 	if err != nil {
 		return
 	}
