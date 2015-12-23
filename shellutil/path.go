@@ -23,8 +23,8 @@ func IsDirectory(path string) bool {
 	return err == nil && stat.IsDir()
 }
 
-// EqualFilenames uses unicode normmalization
-func EqualFilenames(filename0, filename1 string) bool {
+// IdenticalFilenames uses unicode normmalization
+func IdenticalFilenames(filename0, filename1 string) bool {
 	return bytes.Equal(norm.NFC.Bytes([]byte(filename0)), norm.NFC.Bytes([]byte(filename1)))
 }
 

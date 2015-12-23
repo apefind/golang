@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -16,13 +17,15 @@ func Usage(cmd string, flags *flag.FlagSet) {
 		fmt.Fprintf(os.Stderr, "\n%s %s -l <length> -r <ratio>\n\n", filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\tprint a length limited prompt\n\n")
 	} else if cmd == "timeout" {
-		fmt.Fprintf(os.Stderr, "\n%s %s -d <duration> command [args ...]\n\n",
-			filepath.Base(os.Args[0]), cmd)
+		fmt.Fprintf(os.Stderr, "\n%s %s -d <duration> command [args ...]\n\n", filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\trun a command under time limitation\n\n")
 	} else if cmd == "timeit" {
-		fmt.Fprintf(os.Stderr, "\n%s %s -n <repetitions> command [args ...]\n\n",
-			filepath.Base(os.Args[0]), cmd)
+		fmt.Fprintf(os.Stderr, "\n%s %s -n <repetitions> command [args ...]\n\n", filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\tmeasure execution time of a command\n\n")
+	} else if cmd == "cleanup" {
+		fmt.Fprintf(os.Stderr, "\n%s %s -dir <directory>\n\n", filepath.Base(os.Args[0]), cmd)
+		fmt.Fprintf(os.Stderr, "\tremove files from directory based on glob style matching ")
+		fmt.Fprintf(os.Stderr, "and regular expressions\n\n")
 	} else {
 		fmt.Fprintf(os.Stderr, "\n%s %s\n\n", filepath.Base(os.Args[0]), cmd)
 		fmt.Fprintf(os.Stderr, "\trun some shell utility\n\n")
@@ -35,9 +38,9 @@ func PromptCmd(args []string) int {
 	var ratio float64
 	flags := flag.NewFlagSet("prompt", flag.ExitOnError)
 	flags.IntVar(&length, "length", 32, "maximum length of the prompt")
-	flags.IntVar(&length, "l", 32, "")
+	flags.IntVar(&length, "l", 32, "short for -length")
 	flags.Float64Var(&ratio, "ratio", 0.75, "ratio between head/tail of the path")
-	flags.Float64Var(&ratio, "r", 0.75, "")
+	flags.Float64Var(&ratio, "r", 0.75, "short for -ratio")
 	flags.Usage = func() { Usage("prompt", flags) }
 	flags.Parse(args)
 	fmt.Print(GetShellPrompt(length, ratio))
@@ -75,8 +78,10 @@ func TimeItCmd(args []string) int {
 	var n int
 	var quiet bool
 	flags := flag.NewFlagSet("timeit", flag.ExitOnError)
-	flags.IntVar(&n, "n", 1, "number of repetitions")
-	flags.BoolVar(&quiet, "q", false, "quiet run")
+	flags.IntVar(&n, "n-repetitions", 1, "number of repetitions")
+	flags.IntVar(&n, "n", 1, "short for -repetitions")
+	flags.BoolVar(&quiet, "quiet", false, "quiet run")
+	flags.BoolVar(&quiet, "q", false, "short for -quiet")
 	flags.Usage = func() { Usage("timeit", flags) }
 	flags.Parse(args)
 	cmd := flags.Arg(0)
@@ -104,5 +109,36 @@ func TimeItCmd(args []string) int {
 	}
 	log.Printf("total duration:\t\t\t%s\n", duration)
 	log.Printf("average duration (%dx):\t\t%s\n", n, time.Duration(int64(duration.Nanoseconds()/int64(n))))
+	return 0
+}
+
+func CleanUpCmd(args []string) int {
+	var glob, re string
+	var recurse, simulate bool
+	flags := flag.NewFlagSet("cleanup", flag.ExitOnError)
+	flags.BoolVar(&recurse, "recurse", false, "recurse through subdirectories")
+	flags.BoolVar(&recurse, "r", false, "short for -recurse")
+	flags.BoolVar(&simulate, "dry-run", false, "just simulate")
+	flags.BoolVar(&simulate, "d", false, "short for dry-run")
+	flags.StringVar(&glob, "glob", "", "blank separated globbing style patterns")
+	flags.StringVar(&re, "re", "", "blank separated regexp style patterns")
+	flags.Usage = func() { Usage("cleanup", flags) }
+	flags.Parse(args)
+	var dirs []string
+	if flags.NArg() == 0 {
+		wd, _ := os.Getwd()
+		dirs = []string{wd}
+	} else {
+		dirs = flags.Args()
+	}
+	for _, dir := range dirs {
+		if !IsDirectory(dir) {
+			continue
+		}
+		if err := CleanUp(dir, strings.Fields(glob), strings.Fields(re), recurse, simulate); err != nil {
+			log.Println(err)
+			return -1
+		}
+	}
 	return 0
 }

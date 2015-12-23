@@ -8,7 +8,7 @@ import (
 )
 
 func TestTimeout(t *testing.T) {
-	var cmd string = "sleep"
+	var cmd = "sleep"
 	var status CommandStatus
 	var err error
 	if testing.Short() {

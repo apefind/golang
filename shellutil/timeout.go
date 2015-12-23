@@ -19,7 +19,7 @@ const (
 	PipeError
 )
 
-// Timeout executes a system command given a maximum lifetime, cmd and args are the arguments
+// TimeOut executes a system command given a maximum lifetime, cmd and args are the arguments
 // passed to exec.Command(), stdout will be written to w, flushing after each eol
 func TimeOut(w *bufio.Writer, timeout time.Duration, cmd string, args ...string) (CommandStatus, error) {
 	command := exec.Command(cmd, args...)

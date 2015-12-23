@@ -67,6 +67,9 @@ func (inout *InOut) SetAutoOutput(ext string) {
 	}
 }
 
+func (inout *InOut) CreateOutputDirectories(ext string) {
+}
+
 func GetMultiInOut(input, output string, isValid ValidFilenameFunc, ext string) []*InOut {
 	var F []string
 	if input == "" {
