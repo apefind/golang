@@ -3,13 +3,15 @@ package main
 import (
 	"apefind/shellutil"
 	"flag"
+	//"io/ioutil"
 	"log"
 	"os"
 )
 
 func main() {
 	log.SetFlags(0)
-	flag.Usage = func() { shellutil.Usage("[prompt|timeout|timeit]", flag.CommandLine) }
+	//log.SetOutput(ioutil.Discard)
+	flag.Usage = func() { shellutil.Usage("[prompt|timeout|timeit|cleanup]", flag.CommandLine) }
 	flag.Parse()
 	switch flag.Arg(0) {
 	case "prompt":
@@ -18,6 +20,8 @@ func main() {
 		os.Exit(shellutil.TimeOutCmd(os.Args[2:]))
 	case "timeit":
 		os.Exit(shellutil.TimeItCmd(os.Args[2:]))
+	case "cleanup":
+		os.Exit(shellutil.CleanUpCmd(os.Args[2:]))
 	default:
 		flag.Usage()
 		os.Exit(1)
