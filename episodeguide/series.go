@@ -53,16 +53,16 @@ func (series *Series) EpisodeMap() map[string]*Episode {
 }
 
 type SeriesReader interface {
-	GetSeries() (*Series, error)
+	GetSeries(title string) (*Series, error)
 }
 
-func getSeries(title string, readers []SeriesReader, timeout time.Duration) (*Series, error) {
+func GetSeries(title string, readers []SeriesReader, timeout time.Duration) (*Series, error) {
 	var series *Series
 	var err error
 	done := make(chan error, 1)
 	for _, r := range readers {
 		go func(r SeriesReader) {
-			series, err = r.GetSeries()
+			series, err = r.GetSeries(title)
 			if err == nil {
 				done <- err
 			}
@@ -71,24 +71,31 @@ func getSeries(title string, readers []SeriesReader, timeout time.Duration) (*Se
 	select {
 	case <-time.After(timeout):
 		close(done)
-		return series, fmt.Errorf("timeout after %s", timeout)
+		return nil, fmt.Errorf("timeout after %s", Timeout)
 	case err = <-done:
 		close(done)
 		return series, err
 	}
 }
 
-func GetSeries(title string, method string) (*Series, error) {
+func GetSeries2(title string) (*Series, error) {
 	readers := []SeriesReader{}
-	if strings.Contains(method, "tvmaze") {
-		readers = append(readers, NewTVMazeSeries(title))
+	if strings.Contains(Method, "tvmaze") {
+		readers = append(readers, &TVMazeSeriesReader{})
 	}
-	if strings.Contains(method, "tvrage") {
-		readers = append(readers, NewTVRageSeries(title))
+	if strings.Contains(Method, "tvrage") {
+		readers = append(readers, &TVRageSeriesReader{})
 	}
-	timeout, err := time.ParseDuration("5.0s")
-	if err != nil {
-		return nil, err
+	return getSeries(title, readers, Timeout)
+}
+
+func GetSeriesReaders(method string) []SeriesReader {
+	readers := []SeriesReader{}
+	if strings.Contains(Method, "tvmaze") {
+		readers = append(readers, &TVMazeSeriesReader{})
 	}
-	return getSeries(title, readers, timeout)
+	if strings.Contains(Method, "tvrage") {
+		readers = append(readers, &TVRageSeriesReader{})
+	}
+	return readers
 }

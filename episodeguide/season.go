@@ -7,7 +7,7 @@ import (
 
 type Season struct {
 	Series             *Series
-	Id                 int
+	ID                 int
 	Title, Description string
 	Episodes           map[int]*Episode
 }
@@ -15,7 +15,7 @@ type Season struct {
 func NewSeason(series *Series, id int, title, description string) *Season {
 	return &Season{
 		Series:      series,
-		Id:          id,
+		ID:          id,
 		Title:       title,
 		Description: description,
 		Episodes:    make(map[int]*Episode),
@@ -23,13 +23,13 @@ func NewSeason(series *Series, id int, title, description string) *Season {
 }
 
 func (season *Season) String() string {
-	return fmt.Sprintf("Season %d: %s", season.Id, season.Title)
+	return fmt.Sprintf("Season %d: %s", season.ID, season.Title)
 }
 
 func (season *Season) AddEpisode(id int, title, description string) {
 	season.Episodes[id] = &Episode{
 		Season:      season,
-		Id:          id,
+		ID:          id,
 		Title:       title,
 		Description: description,
 	}

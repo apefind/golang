@@ -13,7 +13,7 @@ func GetTVRageSeriesFake(title string) (*Series, error) {
 		return nil, err
 	}
 	defer r.Close()
-	_, err = GetTVRageSeriesId(r, title)
+	_, err = GetTVRageSeriesID(r, title)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,7 @@ import (
 
 type Episode struct {
 	Season             *Season
-	Id                 int
+	ID                 int
 	Title, Description string
 }
 
@@ -15,5 +15,5 @@ func (episode *Episode) String() string {
 }
 
 func (episode *Episode) Code() string {
-	return fmt.Sprintf("S%02dE%02d", episode.Season.Id, episode.Id)
+	return fmt.Sprintf("S%02dE%02d", episode.Season.ID, episode.ID)
 }
