@@ -17,7 +17,7 @@ type TestEDL struct {
 	fps   int
 }
 
-var testEDL []TestEDL = []TestEDL{
+var testEDL = []TestEDL{
 	{"test01.edl", 24},
 	{"test01.edl", 30},
 	{"test01.edl", 24},

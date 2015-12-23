@@ -50,13 +50,12 @@ func ExtractCmd(args []string) int {
 	flags := flag.NewFlagSet("extract", flag.ExitOnError)
 	flags.Usage = func() { Usage("extract", flags) }
 	flags.StringVar(&input, "input", "", "edit decision list or standard input")
-	flags.StringVar(&input, "i", "", "")
+	flags.StringVar(&input, "i", "", "short for -input")
 	flags.StringVar(&output, "output", "", "csv output file or standard output")
-	flags.StringVar(&output, "o", "", "")
+	flags.StringVar(&output, "o", "", "short for -output")
 	flags.IntVar(&fps, "frames-per-second", 30, "frames per second, usually 24 or 30")
-	flags.IntVar(&fps, "fps", 30, "")
+	flags.IntVar(&fps, "fps", 30, "short for -frames-per-second")
 	flags.BoolVar(&auto, "auto", false, "automatically choose input files and output names")
-	flags.BoolVar(&auto, "a", false, "")
 	if err := flags.Parse(args); err != nil {
 		flags.Usage()
 		return 1
