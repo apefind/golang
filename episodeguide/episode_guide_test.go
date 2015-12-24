@@ -72,7 +72,12 @@ func TestEpisode(t *testing.T) {
 		}
 		defer f.Close()
 	}
-	RenameEpisodes(filepath.Clean(path), "tvrage", true, false)
+	var info SeriesInfoCmd
+	info.Title, info.SeasonID = GetSeriesTitleFromPath(path)
+	info.Method = "tvrage"
+	info.NormalizedTitle = false
+	info.DryRun = false
+	info.RenameEpisodes(filepath.Clean(path))
 }
 
 func ExampleGetEpisodeFromFilename() {

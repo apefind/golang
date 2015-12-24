@@ -3,7 +3,6 @@ package episodeguide
 import (
 	"fmt"
 	"sort"
-	"strings"
 	"time"
 )
 
@@ -71,31 +70,9 @@ func GetSeries(title string, readers []SeriesReader, timeout time.Duration) (*Se
 	select {
 	case <-time.After(timeout):
 		close(done)
-		return nil, fmt.Errorf("timeout after %s", Timeout)
+		return nil, fmt.Errorf("timeout after %s", timeout)
 	case err = <-done:
 		close(done)
 		return series, err
 	}
-}
-
-func GetSeries2(title string) (*Series, error) {
-	readers := []SeriesReader{}
-	if strings.Contains(Method, "tvmaze") {
-		readers = append(readers, &TVMazeSeriesReader{})
-	}
-	if strings.Contains(Method, "tvrage") {
-		readers = append(readers, &TVRageSeriesReader{})
-	}
-	return getSeries(title, readers, Timeout)
-}
-
-func GetSeriesReaders(method string) []SeriesReader {
-	readers := []SeriesReader{}
-	if strings.Contains(Method, "tvmaze") {
-		readers = append(readers, &TVMazeSeriesReader{})
-	}
-	if strings.Contains(Method, "tvrage") {
-		readers = append(readers, &TVRageSeriesReader{})
-	}
-	return readers
 }
