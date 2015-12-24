@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestPath(t *testing.T) {
@@ -49,6 +50,9 @@ func TestFilename(t *testing.T) {
 }
 
 func TestEpisode(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping episode funktionality in short mode")
+	}
 	t.Log("testing episode functionality")
 	tmpdir, err := ioutil.TempDir("/tmp", "test_episode_guide")
 	if err != nil {
@@ -74,9 +78,36 @@ func TestEpisode(t *testing.T) {
 	}
 	var info SeriesInfoCmd
 	info.Title, info.SeasonID = GetSeriesTitleFromPath(path)
-	info.Method = "tvrage"
+	info.Method = "tvmaze|tvrage"
+	info.Timeout = 5 * time.Second
 	info.NormalizedTitle = false
 	info.DryRun = false
+	episodes := info.GetRenamedEpisodes(filenames)
+	renamedFiles := []string{
+		"S05E01 Homer's Barbershop Quartet.mkv",
+		"S05E03 Homer Goes to College.mkv",
+		"",
+		"S05E02 Cape Feare.mkv",
+	}
+	for i, filename := range filenames {
+		if episodes[filename] != renamedFiles[i] {
+			t.Error("expected", renamedFiles[i], "instead of", episodes[filename])
+		}
+	}
+	info.RenameEpisodes(filepath.Clean(path))
+	info.NormalizedTitle = true
+	episodes = info.GetRenamedEpisodes(filenames)
+	normalizedFiles := []string{
+		"S05E01.mkv",
+		"S05E03.mkv",
+		".mkv",
+		"S05E02.mkv",
+	}
+	for i, filename := range filenames {
+		if episodes[filename] != normalizedFiles[i] {
+			t.Error("expected", normalizedFiles[i], "instead of", episodes[filename])
+		}
+	}
 	info.RenameEpisodes(filepath.Clean(path))
 }
 
@@ -107,12 +138,12 @@ func ExampleGetSeriesFromPath() {
 		"Movies/X-Files",
 	}
 	for _, path := range paths {
-		title, _ := GetSeriesTitleFromPath(path)
-		fmt.Println(path, "->", title)
+		title, seasonID := GetSeriesTitleFromPath(path)
+		fmt.Println(path, "->", title, seasonID)
 	}
 	// Output:
-	// /Users/test/Movies/Millenium -> Millenium
-	// /Users/test/Movies/Millenium/Season3 -> Millenium
-	// /Users/test/Movies/X-Files/season3 -> X-Files
-	// Movies/X-Files -> X-Files
+	// /Users/test/Movies/Millenium -> Millenium 0
+	// /Users/test/Movies/Millenium/Season3 -> Millenium 3
+	// /Users/test/Movies/X-Files/season3 -> X-Files 3
+	// Movies/X-Files -> X-Files 0
 }

@@ -3,6 +3,7 @@ package episodeguide
 import (
 	"apefind/shellutil"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -50,7 +51,7 @@ func (s *SeriesInfoCmd) GetRenamedEpisodes(filenames []string) map[string]string
 	}
 	series, err = s.GetSeries()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return renamedEpisodes
 	}
 	episodes = series.EpisodeMap()
@@ -69,9 +70,9 @@ func (s *SeriesInfoCmd) GetRenamedEpisodes(filenames []string) map[string]string
 
 func (s *SeriesInfoCmd) ListEpisodes() {
 	printHeader := func(s string, c string) {
-		fmt.Println()
-		fmt.Println(s)
-		fmt.Println(strings.Repeat(c, len(s)))
+		log.Println()
+		log.Println(s)
+		log.Println(strings.Repeat(c, len(s)))
 	}
 	//_, seasonID := GetSeriesTitleFromPath(path)
 	var series *Series
@@ -85,7 +86,7 @@ func (s *SeriesInfoCmd) ListEpisodes() {
 		if s.SeasonID == 0 || season.ID == s.SeasonID {
 			printHeader(fmt.Sprintf("Season %d", season.ID), "-")
 			for _, episode := range season.SortedEpisodes() {
-				fmt.Println(episode)
+				log.Println(episode)
 			}
 		}
 	}
@@ -103,11 +104,11 @@ func (s *SeriesInfoCmd) RenameEpisodes(path string) {
 		episode := episodes[filename]
 		dirname, basename := filepath.Split(filename)
 		if shellutil.IdenticalFilenames(basename, episode) {
-			fmt.Println(basename, "-> ok")
+			log.Println(basename, "-> ok")
 		} else if episode == "" {
-			fmt.Println(basename, "-> title not found")
+			log.Println(basename, "-> title not found")
 		} else {
-			fmt.Println(basename, "->", episode)
+			log.Println(basename, "->", episode)
 			if !s.DryRun {
 				os.Rename(filename, dirname+string(filepath.Separator)+episode)
 			}
