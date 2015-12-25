@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/apefind/golang/shellutil"
+	"github.com/github.com/github.com/github.com/apefind/golang/golang/golang/golang/shellutil"
 	//"io/ioutil"
 	"log"
 	"os"
