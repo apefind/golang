@@ -9,13 +9,13 @@ func TestPath(t *testing.T) {
 	t.Log("testing path functionality")
 	tmpdir, _ := ioutil.TempDir("/tmp", "test_shellutil_")
 	for _, dir := range []string{"/tmp", "/usr/local", tmpdir} {
-		if IsFile(dir) || !IsDirectory(dir) {
+		if IsFile(dir) || !IsDir(dir) {
 			t.Error(dir, "is a directory")
 		}
 	}
 	tmpfile, _ := ioutil.TempFile(tmpdir, "a_file_")
 	for _, file := range []string{"/etc/hosts", "/etc/passwd", tmpfile.Name()} {
-		if !IsFile(file) || IsDirectory(file) {
+		if !IsFile(file) || IsDir(file) {
 			t.Error(file, "is a file")
 		}
 	}

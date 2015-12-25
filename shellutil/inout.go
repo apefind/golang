@@ -60,7 +60,7 @@ func (inout *InOut) SetAutoOutput(ext string) {
 	}
 	if inout.Out == "" {
 		inout.Out = strings.TrimSuffix(inout.In, filepath.Ext(inout.In)) + ext
-	} else if IsDirectory(inout.Out) {
+	} else if IsDir(inout.Out) {
 		inout.Out = inout.Out + PathSeparator + GetFileBasename(inout.In) + ext
 	} else {
 		inout.Out = inout.Out + ext
@@ -74,7 +74,7 @@ func GetMultiInOut(input, output string, isValid ValidFilenameFunc, ext string) 
 	var F []string
 	if input == "" {
 		F = GetCurDirFilenames(isValid)
-	} else if IsDirectory(input) {
+	} else if IsDir(input) {
 		F = GetDirFilenames(input, isValid)
 	} else {
 		F = []string{input}

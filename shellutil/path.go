@@ -2,6 +2,8 @@ package shellutil
 
 import (
 	"bytes"
+	"flag"
+	"fmt"
 	"golang.org/x/text/unicode/norm"
 	"io/ioutil"
 	"os"
@@ -18,12 +20,12 @@ func IsFile(path string) bool {
 	return err == nil && stat.Mode().IsRegular()
 }
 
-func IsDirectory(path string) bool {
+func IsDir(path string) bool {
 	stat, err := os.Stat(path)
 	return err == nil && stat.IsDir()
 }
 
-// IdenticalFilenames uses unicode normmalization
+// IdenticalFilenames uses unicode normalization
 func IdenticalFilenames(filename0, filename1 string) bool {
 	return bytes.Equal(norm.NFC.Bytes([]byte(filename0)), norm.NFC.Bytes([]byte(filename1)))
 }
@@ -64,7 +66,7 @@ func GetCurDirFilenames(isValid ValidFilenameFunc) []string {
 func GetOutputFilename(input, output, ext string) string {
 	if output == "" {
 		return strings.TrimSuffix(input, filepath.Ext(input)) + ext
-	} else if IsDirectory(output) {
+	} else if IsDir(output) {
 		return output + PathSeparator + GetFileBasename(input) + ext
 	}
 	return output + ext
@@ -74,7 +76,7 @@ func GetInputOutput(input, output string, isValid ValidFilenameFunc, ext string)
 	var F, G []string
 	if input == "" {
 		F = GetCurDirFilenames(isValid)
-	} else if IsDirectory(input) {
+	} else if IsDir(input) {
 		F = GetDirFilenames(input, isValid)
 	} else {
 		F = []string{input}
@@ -83,4 +85,21 @@ func GetInputOutput(input, output string, isValid ValidFilenameFunc, ext string)
 		G = append(G, GetOutputFilename(f, output, ext))
 	}
 	return F, G
+}
+
+func GetDirsFromFlagSetArgs(flags *flag.FlagSet) ([]string, error) {
+	if flags.NArg() == 0 {
+		wd, err := os.Getwd()
+		return []string{wd}, err
+	}
+	var err error
+	dirs := make([]string, 0, flags.NArg())
+	for _, arg := range flags.Args() {
+		if IsDir(arg) {
+			dirs = append(dirs, filepath.Clean(arg))
+		} else {
+			err = fmt.Errorf("%s is not a directory", arg)
+		}
+	}
+	return dirs, err
 }

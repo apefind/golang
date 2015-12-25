@@ -124,17 +124,12 @@ func CleanUpCmd(args []string) int {
 	flags.StringVar(&re, "re", "", "blank separated regexp style patterns")
 	flags.Usage = func() { Usage("cleanup", flags) }
 	flags.Parse(args)
-	var dirs []string
-	if flags.NArg() == 0 {
-		wd, _ := os.Getwd()
-		dirs = []string{wd}
-	} else {
-		dirs = flags.Args()
+	dirs, err := GetDirsFromFlagSetArgs(flags)
+	if err != nil {
+		log.Println(err)
+		return -1
 	}
 	for _, dir := range dirs {
-		if !IsDirectory(dir) {
-			continue
-		}
 		if err := CleanUp(dir, strings.Fields(glob), strings.Fields(re), recurse, simulate); err != nil {
 			log.Println(err)
 			return -1
