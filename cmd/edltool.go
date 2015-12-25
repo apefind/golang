@@ -1,7 +1,7 @@
 package main
 
 import (
-	"apefind/edl"
+	"www.github.com/apefind/golang/edl"
 	"flag"
 	"log"
 	"os"

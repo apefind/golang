@@ -1,7 +1,7 @@
 package main
 
 import (
-	"apefind/shellutil"
+	"www.github.com/apefind/golang/shellutil"
 	"flag"
 	//"io/ioutil"
 	"log"

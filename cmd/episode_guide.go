@@ -1,7 +1,8 @@
 package main
 
 import (
-	"apefind/episodeguide"
+	"www.github.com/apefind/golang/episodeguide"
+	"www.github.com/apefind/golang/shellutil"
 	"flag"
 	"fmt"
 	"log"
@@ -37,7 +38,6 @@ func main() {
 		path, _ := os.Getwd()
 		info.RenameEpisodes(filepath.Clean(path))
 	case "info":
-		info.Title, info.SeasonID = episodeguide.GetSeriesTitleFromWorkingDirectory()
 		flags := flag.NewFlagSet("info", flag.ExitOnError)
 		flags.StringVar(&info.Method, "method", "tvmaze|tvrage", "tvmaze or/and tvrage")
 		flags.StringVar(&info.Method, "m", "tvmaze|tvrage", "")
@@ -45,7 +45,15 @@ func main() {
 		flags.DurationVar(&info.Timeout, "t", 10*time.Second, "")
 		flags.Usage = func() { usage(flags) }
 		flags.Parse(os.Args[2:])
-		info.ListEpisodes()
+		dirs, err := shellutil.GetDirsFromFlagSetArgs(flags)
+		if err != nil {
+			log.Println(err)
+			os.Exit(-1)
+		}
+		for _, dir := range dirs {
+			info.Title, info.SeasonID = episodeguide.GetSeriesTitleFromPath(dir)
+			info.ListEpisodes()
+		}
 	default:
 		flag.Usage()
 		os.Exit(1)

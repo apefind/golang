@@ -1,7 +1,7 @@
 package episodeguide
 
 import (
-	"apefind/shellutil"
+	"www.github.com/apefind/golang/shellutil"
 	"fmt"
 	"log"
 	"os"

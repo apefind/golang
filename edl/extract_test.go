@@ -1,7 +1,7 @@
 package edl
 
 import (
-	"apefind/shellutil"
+	"www.github.com/apefind/golang/shellutil"
 	"bufio"
 	"bytes"
 	"io/ioutil"

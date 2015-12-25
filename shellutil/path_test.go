@@ -24,11 +24,11 @@ func TestPath(t *testing.T) {
 func TestInputOutput(t *testing.T) {
 	t.Log("testing input/output functionality")
 	R := [][4]string{
-		{"/home/apefind/test.txt", "/tmp", ".csv", "/tmp/test.csv"},
-		{"/home/apefind/test.txt", "/tmp/_not_a_dir_", ".csv", "/tmp/_not_a_dir_.csv"},
-		{"/home/apefind/test.txt", "/tmp/test.xls", "", "/tmp/test.xls"},
-		{"/home/apefind/test", "", ".csv", "/home/apefind/test.csv"},
-		{"/home/apefind/test", "", ".mp3", "/home/apefind/test.mp3"},
+		{"/home/www.github.com/apefind/golang/test.txt", "/tmp", ".csv", "/tmp/test.csv"},
+		{"/home/www.github.com/apefind/golang/test.txt", "/tmp/_not_a_dir_", ".csv", "/tmp/_not_a_dir_.csv"},
+		{"/home/www.github.com/apefind/golang/test.txt", "/tmp/test.xls", "", "/tmp/test.xls"},
+		{"/home/www.github.com/apefind/golang/test", "", ".csv", "/home/www.github.com/apefind/golang/test.csv"},
+		{"/home/www.github.com/apefind/golang/test", "", ".mp3", "/home/www.github.com/apefind/golang/test.mp3"},
 	}
 	for _, r := range R {
 		if GetOutputFilename(r[0], r[1], r[2]) != r[3] {
