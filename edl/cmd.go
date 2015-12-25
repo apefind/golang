@@ -3,13 +3,13 @@ package edl
 import (
 	"flag"
 	"fmt"
+	"github.com/apefind/golang/shellutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
-	"www.github.com/apefind/golang/shellutil"
 )
 
 func Usage(cmd string, flags *flag.FlagSet) {

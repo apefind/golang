@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
+	"github.com/apefind/golang/edl"
 	"log"
 	"os"
-	"www.github.com/apefind/golang/edl"
 )
 
 func main() {
