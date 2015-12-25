@@ -1,7 +1,6 @@
 package episodeguide
 
 import (
-	"www.github.com/apefind/golang/shellutil"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"www.github.com/apefind/golang/shellutil"
 )
 
 type SeriesInfoCmd struct {

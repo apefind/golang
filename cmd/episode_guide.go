@@ -1,14 +1,14 @@
 package main
 
 import (
-	"www.github.com/apefind/golang/episodeguide"
-	"www.github.com/apefind/golang/shellutil"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+	"www.github.com/apefind/golang/episodeguide"
+	"www.github.com/apefind/golang/shellutil"
 )
 
 func usage(flags *flag.FlagSet) {
