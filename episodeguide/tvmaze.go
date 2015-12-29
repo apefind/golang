@@ -12,14 +12,14 @@ import (
 const urlTVMazeShowQuery string = `http://api.tvmaze.com/singlesearch/shows?q=%s`
 const urlTVMazeEpisodeQuery string = `http://api.tvmaze.com/shows/%d/episodes`
 
-type jsonTVMazeEpisode struct {
+type TVMazeEpisode struct {
 	ID      int    `json:"number"`
 	Season  int    `json:"season"`
 	Title   string `json:"name"`
 	Summary string `json:"summary"`
 }
 
-type jsonTVMazeSeries struct {
+type TVMazeSeries struct {
 	Name string `json:"name"`
 	ID   int    `json:"id"`
 }
@@ -29,7 +29,7 @@ func GetTVMazeSeriesID(r io.Reader, title string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	var result jsonTVMazeSeries
+	var result TVMazeSeries
 	if err := json.Unmarshal(content, &result); err != nil {
 		return 0, err
 	}
@@ -41,7 +41,7 @@ func GetTVMazeSeries(r io.Reader, title string) (*Series, error) {
 	if err != nil {
 		return nil, err
 	}
-	var epsiodesTVMaze []jsonTVMazeEpisode
+	var epsiodesTVMaze []TVMazeEpisode
 	if err := json.Unmarshal(content, &epsiodesTVMaze); err != nil {
 		return nil, err
 	}

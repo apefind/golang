@@ -3,12 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/apefind/golang/episodeguide"
-	"github.com/apefind/golang/shellutil"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/apefind/golang/episodeguide"
+	"github.com/apefind/golang/shellutil"
 )
 
 func usage(flags *flag.FlagSet) {
@@ -29,8 +30,8 @@ func main() {
 		flags.BoolVar(&info.DryRun, "d", false, "short for -dry-run")
 		flags.BoolVar(&info.NormalizedTitle, "no-title", false, "ignore the title, just use S01E01, S01E02, ...")
 		flags.BoolVar(&info.NormalizedTitle, "n", false, "short for -no-title")
-		flags.StringVar(&info.Method, "method", "tvmaze|tvrage", "tvmaze or/and tvrage")
-		flags.StringVar(&info.Method, "m", "tvmaze|tvrage", "short for -method")
+		flags.StringVar(&info.Method, "method", "tvmaze|tvrage|redis", "tvmaze or/and tvrage")
+		flags.StringVar(&info.Method, "m", "tvmaze|tvrage|redis", "short for -method")
 		flags.DurationVar(&info.Timeout, "timeout", 10*time.Second, "stop search after given duration")
 		flags.DurationVar(&info.Timeout, "t", 10*time.Second, "")
 		flags.Usage = func() { usage(flags) }

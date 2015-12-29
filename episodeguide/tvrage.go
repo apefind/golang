@@ -15,33 +15,33 @@ import (
 const urlTVRageSearch string = `http://services.tvrage.com/feeds/search.php?show=%s`
 const urlTVRageEpisodeList string = `http://services.tvrage.com/feeds/episode_list.php?sid=%s`
 
-type xmlTVRageShow struct {
+type TVRageShow struct {
 	_    xml.Name `xml:"show"`
 	ID   string   `xml:"showid"`
 	Name string   `xml:"name"`
 }
 
-type xmlTVRageQueryResult struct {
-	_     xml.Name        `xml:"Results"`
-	Shows []xmlTVRageShow `xml:"show"`
+type TVRageQueryResult struct {
+	_     xml.Name     `xml:"Results"`
+	Shows []TVRageShow `xml:"show"`
 }
 
-type xmlTVRageEpisode struct {
+type TVRageEpisode struct {
 	_     xml.Name `xml:"episode"`
 	ID    string   `xml:"seasonnum"`
 	Title string   `xml:"title"`
 }
 
-type xmlTVRageSeason struct {
-	_        xml.Name           `xml:"Season"`
-	ID       string             `xml:"no,attr"`
-	Episodes []xmlTVRageEpisode `xml:"episode"`
+type TVRageSeason struct {
+	_        xml.Name        `xml:"Season"`
+	ID       string          `xml:"no,attr"`
+	Episodes []TVRageEpisode `xml:"episode"`
 }
 
-type xmlTVRageSeries struct {
-	_       xml.Name          `xml:"Show"`
-	Name    string            `xml:"name"`
-	Seasons []xmlTVRageSeason `xml:"Episodelist>Season"`
+type TVRageSeries struct {
+	_       xml.Name       `xml:"Show"`
+	Name    string         `xml:"name"`
+	Seasons []TVRageSeason `xml:"Episodelist>Season"`
 }
 
 func GetTVRageSeriesID(r io.Reader, title string) (string, error) {
@@ -49,7 +49,7 @@ func GetTVRageSeriesID(r io.Reader, title string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var result xmlTVRageQueryResult
+	var result TVRageQueryResult
 	if err := xml.Unmarshal(content, &result); err != nil {
 		return "", err
 	}
@@ -66,7 +66,7 @@ func GetTVRageSeries(r io.Reader) (*Series, error) {
 	if err != nil {
 		return nil, err
 	}
-	var seriesTVRage xmlTVRageSeries
+	var seriesTVRage TVRageSeries
 	if err := xml.Unmarshal(content, &seriesTVRage); err != nil {
 		return nil, err
 	}

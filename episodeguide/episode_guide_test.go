@@ -78,7 +78,7 @@ func TestEpisode(t *testing.T) {
 	}
 	var info SeriesInfoCmd
 	info.Title, info.SeasonID = GetSeriesTitleFromPath(path)
-	info.Method = "tvmaze|tvrage"
+	info.Method = "tvmaze|tvrage|redis"
 	info.Timeout = 5 * time.Second
 	info.NormalizedTitle = false
 	info.DryRun = false
@@ -100,7 +100,7 @@ func TestEpisode(t *testing.T) {
 	normalizedFiles := []string{
 		"S05E01.mkv",
 		"S05E03.mkv",
-		".mkv",
+		"",
 		"S05E02.mkv",
 	}
 	for i, filename := range filenames {

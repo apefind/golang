@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/apefind/golang/shellutil"
 	//"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/apefind/golang/shellutil"
 )
 
 func main() {

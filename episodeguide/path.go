@@ -79,6 +79,6 @@ func GetEpisodeCodeFromFilename(filename string) string {
 	return ""
 }
 
-func GetValidFilename(filename string) string {
-	return strings.Replace(filename, "/", "-", -1)
+func GetEpisodeFilename(code, title, ext string) string {
+	return strings.Replace(code+" "+title+ext, "/", "-", -1)
 }

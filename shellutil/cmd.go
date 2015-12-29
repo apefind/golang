@@ -78,7 +78,7 @@ func TimeItCmd(args []string) int {
 	var n int
 	var quiet bool
 	flags := flag.NewFlagSet("timeit", flag.ExitOnError)
-	flags.IntVar(&n, "n-repetitions", 1, "number of repetitions")
+	flags.IntVar(&n, "repetitions", 1, "number of repetitions")
 	flags.IntVar(&n, "n", 1, "short for -repetitions")
 	flags.BoolVar(&quiet, "quiet", false, "quiet run")
 	flags.BoolVar(&quiet, "q", false, "short for -quiet")

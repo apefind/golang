@@ -1,0 +1,5 @@
+#!/bin/sh
+
+timeit="shell_util timeit"
+$timeit "$@"
+exit $?

@@ -5,9 +5,10 @@ import (
 )
 
 type Episode struct {
-	Season             *Season
-	ID                 int
-	Title, Description string
+	Season      *Season
+	ID          int
+	Title       string
+	Description string
 }
 
 func (episode *Episode) String() string {

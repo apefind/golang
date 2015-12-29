@@ -3,13 +3,14 @@ package edl
 import (
 	"bufio"
 	"bytes"
-	"github.com/apefind/golang/shellutil"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/apefind/golang/shellutil"
 )
 
 type TestEDL struct {
