@@ -7,16 +7,16 @@ import (
 	"regexp"
 )
 
-// GetCleanUpWalkFunc returns a file/directory removal function based on glob style matching and
+// GetDirWalkFunc returns a file/directory walk function based on glob style matching and
 // regular expressions, suitable as input for filepath.Walk
-func GetCleanUpWalkFunc(dir string, glob []string, re []string, recurse bool, rm func(string) error) filepath.WalkFunc {
+func GetDirWalkFunc(dir string, glob []string, re []string, recurse bool, walk func(string) error) filepath.WalkFunc {
 	var regExps []*regexp.Regexp
 	for _, expr := range re {
 		if regExp, err := regexp.Compile(expr); err != nil {
 			regExps = append(regExps, regExp)
 		}
 	}
-	walk := func(path string, f os.FileInfo, err error) error {
+	walkFunc := func(path string, f os.FileInfo, err error) error {
 		if !recurse && f.IsDir() && path != dir {
 			return filepath.SkipDir
 		}
@@ -26,7 +26,7 @@ func GetCleanUpWalkFunc(dir string, glob []string, re []string, recurse bool, rm
 				return err
 			}
 			if match {
-				if err := rm(path); err != nil {
+				if err := walk(path); err != nil {
 					return err
 				}
 				return nil
@@ -34,7 +34,7 @@ func GetCleanUpWalkFunc(dir string, glob []string, re []string, recurse bool, rm
 		}
 		for _, regExp := range regExps {
 			if regExp.MatchString(f.Name()) {
-				if err := rm(path); err != nil {
+				if err := walk(path); err != nil {
 					return err
 				}
 				return nil
@@ -42,7 +42,7 @@ func GetCleanUpWalkFunc(dir string, glob []string, re []string, recurse bool, rm
 		}
 		return nil
 	}
-	return walk
+	return walkFunc
 }
 
 func CleanUp(dir string, glob []string, regex []string, recurse bool, simulate bool) error {
@@ -55,5 +55,5 @@ func CleanUp(dir string, glob []string, regex []string, recurse bool, simulate b
 		}
 		return nil
 	}
-	return filepath.Walk(dir, GetCleanUpWalkFunc(dir, glob, regex, recurse, rm))
+	return filepath.Walk(dir, GetDirWalkFunc(dir, glob, regex, recurse, rm))
 }

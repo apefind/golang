@@ -58,20 +58,19 @@ func TimeOutCmd(args []string) int {
 	if cmd == "" {
 		flags.Usage()
 		fmt.Fprintf(os.Stderr, "\nno command specified\n\n")
-		return int(CommandNotFound)
+		return -1
 	}
-	var status CommandStatus
 	var err error
 	w := bufio.NewWriter(os.Stdout)
 	if flags.NArg() == 0 {
-		status, err = TimeOut(w, duration, cmd)
+		err = TimeOut(w, duration, cmd)
 	} else {
-		status, err = TimeOut(w, duration, cmd, flags.Args()[1:]...)
+		err = TimeOut(w, duration, cmd, flags.Args()[1:]...)
 	}
 	if err != nil {
 		log.Println(err)
 	}
-	return int(status)
+	return 0
 }
 
 func TimeItCmd(args []string) int {
@@ -88,7 +87,7 @@ func TimeItCmd(args []string) int {
 	if cmd == "" {
 		flags.Usage()
 		fmt.Fprintf(os.Stderr, "\nno command specified\n\n")
-		return int(CommandNotFound)
+		return -1
 	}
 	var duration time.Duration
 	var err error

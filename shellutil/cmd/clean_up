@@ -1,6 +1,7 @@
 #!/bin/sh
 
-cleanup="shell_util cleanup"
+#cleanup="go run $HOME_DEVELOP/go/src/apefind/cmd/shell_util.go cleanup"
+cleanup="$GOBIN/shell_util cleanup"
 glob=".*~ *~ .*.bak *.bak .*.save *.save .*.bck *.bck .#* *.pyc *.pyo nimcache __pycache__ *.o"
 re=""
 $cleanup -glob "$glob" -re "$re" "$@"

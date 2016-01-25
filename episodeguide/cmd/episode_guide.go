@@ -30,20 +30,9 @@ func main() {
 		flags.BoolVar(&info.DryRun, "d", false, "short for -dry-run")
 		flags.BoolVar(&info.NormalizedTitle, "no-title", false, "ignore the title, just use S01E01, S01E02, ...")
 		flags.BoolVar(&info.NormalizedTitle, "n", false, "short for -no-title")
-		flags.StringVar(&info.Method, "method", "tvmaze|tvrage|redis", "tvmaze or/and tvrage")
-		flags.StringVar(&info.Method, "m", "tvmaze|tvrage|redis", "short for -method")
+		flags.StringVar(&info.Source, "source", "tvmaze|tvrage|redis", "tvmaze or/and tvrage")
 		flags.DurationVar(&info.Timeout, "timeout", 10*time.Second, "stop search after given duration")
-		flags.DurationVar(&info.Timeout, "t", 10*time.Second, "")
-		flags.Usage = func() { usage(flags) }
-		flags.Parse(os.Args[2:])
-		path, _ := os.Getwd()
-		info.RenameEpisodes(filepath.Clean(path))
-	case "info":
-		flags := flag.NewFlagSet("info", flag.ExitOnError)
-		flags.StringVar(&info.Method, "method", "tvmaze|tvrage", "tvmaze or/and tvrage")
-		flags.StringVar(&info.Method, "m", "tvmaze|tvrage", "")
-		flags.DurationVar(&info.Timeout, "timeout", 10*time.Second, "stop search after given duration")
-		flags.DurationVar(&info.Timeout, "t", 10*time.Second, "")
+		flags.StringVar(&info.Title, "series", "", "series title")
 		flags.Usage = func() { usage(flags) }
 		flags.Parse(os.Args[2:])
 		dirs, err := shellutil.GetDirsFromFlagSetArgs(flags)
@@ -52,7 +41,30 @@ func main() {
 			os.Exit(-1)
 		}
 		for _, dir := range dirs {
-			info.Title, info.SeasonID = episodeguide.GetSeriesTitleFromPath(dir)
+			if info.Title == "" {
+				info.Title, _ = episodeguide.GetSeriesTitleFromPath(dir)
+			}
+			info.RenameEpisodes(filepath.Clean(dir))
+		}
+	case "info":
+		flags := flag.NewFlagSet("info", flag.ExitOnError)
+		flags.StringVar(&info.Source, "source", "tvmaze|tvrage", "tvmaze or/and tvrage")
+		flags.DurationVar(&info.Timeout, "timeout", 10*time.Second, "stop search after given duration")
+		flags.StringVar(&info.Title, "series", "", "series title")
+		flags.IntVar(&info.SeasonID, "season", 0, "series season")
+		flags.Usage = func() { usage(flags) }
+		flags.Parse(os.Args[2:])
+		if info.Title == "" {
+			dirs, err := shellutil.GetDirsFromFlagSetArgs(flags)
+			if err != nil {
+				log.Println(err)
+				os.Exit(-1)
+			}
+			for _, dir := range dirs {
+				info.Title, info.SeasonID = episodeguide.GetSeriesTitleFromPath(dir)
+				info.ListEpisodes()
+			}
+		} else {
 			info.ListEpisodes()
 		}
 	default:

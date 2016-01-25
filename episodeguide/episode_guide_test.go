@@ -78,7 +78,7 @@ func TestEpisode(t *testing.T) {
 	}
 	var info SeriesInfoCmd
 	info.Title, info.SeasonID = GetSeriesTitleFromPath(path)
-	info.Method = "tvmaze|tvrage|redis"
+	info.Source = "tvmaze|tvrage|redis"
 	info.Timeout = 5 * time.Second
 	info.NormalizedTitle = false
 	info.DryRun = false
@@ -96,7 +96,7 @@ func TestEpisode(t *testing.T) {
 	}
 	info.RenameEpisodes(filepath.Clean(path))
 	info.NormalizedTitle = true
-	episodes = info.GetRenamedEpisodes(filenames)
+	episodes = info.GetRenamedNormalizedEpisodes(filenames)
 	normalizedFiles := []string{
 		"S05E01.mkv",
 		"S05E03.mkv",

@@ -1,35 +1,26 @@
-//go:generate stringer -type=CommandStatus
-
 package shellutil
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"os/exec"
 	"time"
 )
 
-type CommandStatus int
-
-const (
-	Ok CommandStatus = iota
-	UnspecifiedError
-	ProcessKilled
-	CommandNotFound
-	PipeError
-)
+var ProcessKilled = errors.New("process has been killed")
 
 // TimeOut executes a system command given a maximum lifetime, cmd and args are the arguments
 // passed to exec.Command(), stdout will be written to w, flushing after each eol
-func TimeOut(w *bufio.Writer, timeout time.Duration, cmd string, args ...string) (CommandStatus, error) {
+func TimeOut(w *bufio.Writer, timeout time.Duration, cmd string, args ...string) error {
 	command := exec.Command(cmd, args...)
 	command.Stderr = command.Stdout
 	stdout, err := command.StdoutPipe()
 	if err != nil {
-		return PipeError, err
+		return err
 	}
 	if err := command.Start(); err != nil {
-		return CommandNotFound, err
+		return err
 	}
 	go func() {
 		r := bufio.NewReader(stdout)
@@ -51,14 +42,14 @@ func TimeOut(w *bufio.Writer, timeout time.Duration, cmd string, args ...string)
 	select {
 	case <-time.After(timeout):
 		if err := command.Process.Kill(); err != nil {
-			return UnspecifiedError, err
+			return err
 		}
 		close(done)
-		return ProcessKilled, nil
+		return ProcessKilled
 	case err := <-done:
 		if err != nil {
-			return UnspecifiedError, err
+			return err
 		}
 	}
-	return Ok, nil
+	return nil
 }

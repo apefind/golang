@@ -16,7 +16,7 @@ type SeriesInfoCmd struct {
 	Title           string
 	SeasonID        int
 	Timeout         time.Duration
-	Method          string
+	Source          string
 	NormalizedTitle bool
 	DryRun          bool
 	UpdateRedis     bool
@@ -24,10 +24,10 @@ type SeriesInfoCmd struct {
 
 func (s *SeriesInfoCmd) GetSeriesReaders() []SeriesReader {
 	readers := []SeriesReader{}
-	if strings.Contains(s.Method, "tvmaze") {
+	if strings.Contains(s.Source, "tvmaze") {
 		readers = append(readers, &TVMazeSeriesReader{})
 	}
-	if strings.Contains(s.Method, "tvrage") {
+	if strings.Contains(s.Source, "tvrage") {
 		readers = append(readers, &TVRageSeriesReader{})
 	}
 	return readers
@@ -38,7 +38,7 @@ func (s *SeriesInfoCmd) GetSeries() (*Series, error) {
 	if err != nil {
 		return series, err
 	}
-	if strings.Contains(s.Method, "redis") {
+	if strings.Contains(s.Source, "redis") {
 		if err := UpdateRedisSeries(series); err != nil {
 			return series, err
 		}
