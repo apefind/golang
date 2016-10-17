@@ -35,7 +35,7 @@ func ConvertCmd(args []string) int {
 	flags.Usage = func() { usage("convert", flags) }
 	flags.StringVar(&output, "output", "", "csv output file or standard output")
 	flags.StringVar(&output, "o", "", "short for -output")
-	flags.StringVar(&format, "format", "xlsx", "csv od xlsx")
+	flags.StringVar(&format, "format", "xlsx", "csv or xlsx")
 	flags.IntVar(&fps, "fps", 30, "frames per second")
 	if err := flags.Parse(args); err != nil {
 		flags.Usage()
