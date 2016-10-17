@@ -1,5 +1,0 @@
-#!/bin/sh
-
-episode_guide="$GOBIN/episode_guide"
-$episode_guide "$@"
-exit $?
