@@ -5,7 +5,6 @@ EDL = Edit Decision List, extract information from edit decision list into csv.
 
 Usage
 -----
-::
 
 	edltool extract -i <edl file> -o <csv file> -fps [24|30] [-auto]
 
@@ -27,7 +26,6 @@ Rename series episodes according to tvrage.
 
 Usage
 -----
-::
 
 	episode_guide [rename|info]
 
@@ -44,7 +42,6 @@ Shell Util
 
 Usage
 -----
-::
 
 	shell_util [prompt|timeout|timeit]
 	
