@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// getPromptPath shortens a path given a maximum length and a ratio
+// getPromptPath shortens a path given a maximum length and a ratio for head and tail
 func getPromptPath(path string, length int, ratio float64) string {
 	l := len(path)
 	if l > length {

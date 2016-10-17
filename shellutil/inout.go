@@ -2,6 +2,7 @@ package shellutil
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,33 +10,57 @@ import (
 
 type InOut struct {
 	bufio.ReadWriter
-	In, Out string
-	in, out *os.File
+	Input  []string
+	Output string
+	input  []*os.File
+	output *os.File
 }
 
-func NewInOut(input, output string) *InOut {
-	return &InOut{In: input, Out: output}
+func NewInOut(input ...string) *InOut {
+	return &InOut{
+		Input:  input,
+		Output: "",
+	}
+}
+
+func (inout *InOut) SetOutput(output, ext string) {
+	if ext == "" {
+		ext = filepath.Ext(inout.Input[0])
+	}
+	if output == "" {
+		inout.Output = strings.TrimSuffix(inout.Input[0], filepath.Ext(inout.Input[0])) + ext
+	} else if IsDir(output) {
+		inout.Output = output + PathSeparator + GetFileBasename(inout.Input[0]) + ext
+	} else {
+		inout.Output = output
+	}
 }
 
 func (inout *InOut) Open() error {
-	var err error
-	if inout.In == "" {
+	if len(inout.Input) == 0 {
 		inout.Reader = bufio.NewReader(os.Stdin)
 	} else {
-		inout.in, err = os.Open(inout.In)
-		if err != nil {
-			return err
+		inout.input = make([]*os.File, len(inout.Input))
+		var readers []io.Reader
+		for _, input := range inout.Input {
+			r, err := os.Open(input)
+			if err != nil {
+				return err
+			}
+			inout.input = append(inout.input, r)
+			readers = append(readers, bufio.NewReader(r))
 		}
-		inout.Reader = bufio.NewReader(inout.in)
+		inout.Reader = bufio.NewReader(io.MultiReader(readers...))
 	}
-	if inout.Out == "" {
+	if inout.Output == "" {
 		inout.Writer = bufio.NewWriter(os.Stdout)
 	} else {
-		inout.out, err = os.Create(inout.Out)
+		var err error
+		inout.output, err = os.Create(inout.Output)
 		if err != nil {
 			return err
 		}
-		inout.Writer = bufio.NewWriter(inout.out)
+		inout.Writer = bufio.NewWriter(inout.output)
 	}
 	return nil
 }
@@ -45,25 +70,27 @@ func (inout *InOut) Flush() {
 }
 
 func (inout *InOut) Close() {
-	if inout.in != nil {
-		inout.in.Close()
+	if inout.input != nil {
+		for _, input := range inout.input {
+			input.Close()
+		}
 	}
 	inout.Flush()
-	if inout.out != nil {
-		inout.out.Close()
+	if inout.output != nil {
+		inout.output.Close()
 	}
 }
 
 func (inout *InOut) SetAutoOutput(ext string) {
 	if ext == "" {
-		ext = filepath.Ext(inout.In)
+		ext = filepath.Ext(inout.Input[0])
 	}
-	if inout.Out == "" {
-		inout.Out = strings.TrimSuffix(inout.In, filepath.Ext(inout.In)) + ext
-	} else if IsDir(inout.Out) {
-		inout.Out = inout.Out + PathSeparator + GetFileBasename(inout.In) + ext
+	if inout.Output == "" {
+		inout.Output = strings.TrimSuffix(inout.Input[0], filepath.Ext(inout.Input[0])) + ext
+	} else if IsDir(inout.Output) {
+		inout.Output = inout.Output + PathSeparator + GetFileBasename(inout.Input[0]) + ext
 	} else {
-		inout.Out = inout.Out + ext
+		inout.Output = inout.Output + ext
 	}
 }
 
@@ -81,7 +108,9 @@ func GetMultiInOut(input, output string, isValid ValidFilenameFunc, ext string) 
 	}
 	var I []*InOut
 	for _, f := range F {
-		I = append(I, NewInOut(f, GetOutputFilename(f, output, ext)))
+		inout := NewInOut(f)
+		inout.SetOutput(GetOutputFilename(f, output, ext), "")
+		I = append(I, inout)
 	}
 	return I
 }
