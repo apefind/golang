@@ -26,6 +26,7 @@ type Entry struct {
 	TimeIn, TimeOut                              [4]string
 	FramesIn, FramesOut                          int
 	Elapsed, Seconds, Frames                     int
+	Source                                       string
 }
 
 // NewEntry runs some frames per second/millisecond conversions based on a line of the edl
@@ -76,11 +77,12 @@ func (e *Entry) CSV() []string {
 	record = append(record, strconv.Itoa(e.Elapsed))
 	record = append(record, strconv.Itoa(e.Seconds))
 	record = append(record, strconv.Itoa(e.Frames))
+	record = append(record, e.Source)
 	record = append(record, strings.Join(e.Notes, " / "))
 	return record
 }
 
-// Parse processes the edl for further usage
+// Parse processes the edl for further usage into an array of edl entries
 func Parse(r *bufio.Reader, fps int) []*Entry {
 
 	// works for mac classic `\r` endings, there are probably better ways to do this ...
